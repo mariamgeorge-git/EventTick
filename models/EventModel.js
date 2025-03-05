@@ -40,8 +40,15 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0
-  }
-});
+  },
+  availableTickets: { type: Number, required: true },
+organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
+}, 
+{ timestamps: true });
+
+
+
+module.exports = mongoose.model("Event", EventSchema);
 
 // Export the model
 const Event = mongoose.model('Event', eventSchema);
