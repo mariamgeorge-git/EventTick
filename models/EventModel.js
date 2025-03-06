@@ -23,7 +23,7 @@ const eventSchema = new mongoose.Schema({
     required: true
   },
   image: {
-    type: String, // URL or file path of the image
+    type: String,
     required: false
   },
   ticketPrice: {
