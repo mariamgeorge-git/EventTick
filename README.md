@@ -1,1 +1,5 @@
-# SW-project
+<<<<<<< HEAD
+sw
+=======
+# SW Project
+>>>>>>> da721f1 (Initial commit)
