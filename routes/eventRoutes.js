@@ -9,7 +9,7 @@ const {
   updateEventStatus
 } = require('../Controllers/eventController');
 
-const { protect, authorizeRoles } = require('../middleware/authMiddleware');
+const { protect, authorizeRoles } = require('../middleware/auth');
 
 const router = express.Router();
 

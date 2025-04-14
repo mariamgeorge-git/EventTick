@@ -6,27 +6,32 @@ const getEvents = async (req, res) => {
   res.json(events);
 };
 
-// Public: View single event
+// Public: View single event { // Get Event Details (with error handling if event not found) }
 const getEventById = async (req, res) => {
   const event = await Event.findById(req.params.id);
   if (!event) return res.status(404).json({ message: 'Event not found' });
   res.json(event);
 };
 
-// Organizer: Create event
+// Organizer: Creates event
 const createEvent = async (req, res) => {
-  const { title, description, location, date, ticketsAvailable, ticketPrice } = req.body;
-  const event = await Event.create({
-    title,
-    description,
-    location,
-    date,
-    ticketsAvailable,
-    ticketPrice,
-    organizer: req.user._id
-  });
-  res.status(201).json(event);
-};
+    const { name, date, location, ticketsAvailable, price } = req.body;
+    try {
+      const event = new Event({
+        name,
+        date,
+        location,
+        ticketsAvailable,
+        price,
+        organizer: req.user.id,
+      });
+  
+      await event.save();
+      res.status(201).json(event);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
 
 // Organizer: Update event
 const updateEvent = async (req, res) => {
@@ -94,3 +99,27 @@ module.exports = {
   getMyEventAnalytics,
   updateEventStatus
 };
+
+//Handling the Event Not Found Error
+class NotFoundError extends Error {
+    constructor(message) {
+      super(message);
+      this.statusCode = 404; // HTTP 404: Not Found
+    }
+  }
+
+//  // Get Event Details (with error handling if event not found)
+// const getEventById = async (req, res, next) => {
+//     const { id } = req.params;
+  
+//     try {
+//       const event = await Event.findById(id);
+//       if (!event) {
+//         return next(new NotFoundError(`Event with ID ${id} not found`));
+//       }
+//       res.status(200).json(event);
+//     } catch (error) {
+//       next(error);
+//     }
+  module.exports = { createEvent, getEventById }; 
+  
