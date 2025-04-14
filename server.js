@@ -4,6 +4,10 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes'); 
 
+const eventRoutes = require('./routes/eventRoutes');
+app.use('/api/v1/events', eventRoutes);
+
+
 dotenv.config();
 const app = express();
 
