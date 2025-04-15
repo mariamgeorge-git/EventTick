@@ -22,8 +22,11 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  organizer:
+   { type: mongoose.Schema.Types.ObjectId, ref: 'User', 
+    required: true },
   image: {
-    type: String, // URL or file path of the image
+    type: String,
     required: false
   },
   ticketPrice: {
@@ -42,7 +45,5 @@ const eventSchema = new mongoose.Schema({
     min: 0
   }
 });
-
-// Export the model
 const Event = mongoose.model('Event', eventSchema);
 module.exports = Event;
