@@ -5,7 +5,7 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes'); 
 const eventRoutes = require('./routes/eventRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
-const errorHandler = require('./middleware/errorMiddleware'); // Import the error handler
+const authRoutes = require('./routes/auth'); // Import the auth routes
 
 
 dotenv.config();
@@ -16,7 +16,8 @@ app.use(cors());
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/events', eventRoutes); 
 app.use('/api/v1/bookings', bookingRoutes);
-app.use(errorHandler);
+app.use('api/v1/',authRoutes); // Use the auth routes
+
 
 //Connect to mongodb
 mongoose.connect(process.env.MONGO_URI, {
