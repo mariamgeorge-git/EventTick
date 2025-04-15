@@ -9,12 +9,12 @@ const {
   updateEventStatus
 } = require('../Controllers/eventController');
 
-const { protect, authorizeRoles } = require('../middleware/auth');
+const { protect, authorizeRoles } = require('../middleware/authorization');
 
 const router = express.Router();
 
 // Public
-router.get('/', getEvents);
+router.get('/', updateEvent);
 router.get('/:id', getEventById);
 
 // Organizer
