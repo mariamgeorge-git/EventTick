@@ -12,11 +12,12 @@ const authRoutes = require('./routes/auth'); // Import the auth routes
 dotenv.config();  // Load environment variables
 const app = express();
 
+app.use('/api/v1/events', eventRoutes); 
 // Middleware
 app.use(express.json());
 app.use(cors());
 app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/events', eventRoutes); 
+
 app.use('/api/v1/bookings', bookingRoutes);
 app.use('api/v1/',authRoutes); // Use the auth routes
 
@@ -33,11 +34,10 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 // Routes
-const userRoutes = require('./routes/userRoutes');
+//const userRoutes = require('./routes/userRoutes');
 app.use('/api/v1/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

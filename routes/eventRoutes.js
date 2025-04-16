@@ -13,17 +13,17 @@ const { protect, authorizeRoles } = require('../middleware/authorization');
 
 const router = express.Router();
 
-// Public
-router.get('/', updateEvent);
+// Public: View all events and view a single event
+router.get('/', getEvents);
 router.get('/:id', getEventById);
 
-// Organizer
-router.post('/', protect, authorizeRoles('organizer'), createEvent);
-router.put('/:id', protect, authorizeRoles('organizer'), updateEvent);
-router.delete('/:id', protect, authorizeRoles('organizer'), deleteEvent);
-router.get('/organizer/analytics', protect, authorizeRoles('organizer'), getMyEventAnalytics);
+// Organizer: Create, update, delete events and view event analytics
+router.post('/',  createEvent);
+router.put('/:id', updateEvent);
+router.delete('/:id', deleteEvent);
+router.get('/organizer/analytics', getMyEventAnalytics);
 
-// Admin
-router.put('/:id/status', protect, authorizeRoles('admin'), updateEventStatus);
+// Admin: Update event status
+router.put('/:id/status', updateEventStatus);
 
 module.exports = router;
