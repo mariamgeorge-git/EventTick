@@ -1,92 +1,97 @@
-const Booking = require('../models/BookingModel');
-const Event = require('../models/EventModel');
+const bookingModel = require("../models/bookingModel");
+const eventModel = require("../models/EventModel");
 
-// Book tickets : Missing input, invalid quantity, event not found, event not approved, overbooking
-const bookTickets = async (req, res) => {
-  try {
-    const { eventId, quantity } = req.body;
+const bookingController = {
+  // Book tickets for an event
+  createBooking: async (req, res) => {
+    try {
+      const { eventId, numberOfTickets } = req.body;
+      const userId = req.user._id; // Assuming user ID is stored in req.user
 
-    if (!eventId || !quantity || quantity < 1) {
-      return res.status(400).json({ message: 'Valid event ID and quantity are required' });
-    }
+      // Check if event exists and has available tickets
+      const event = await eventModel.findById(eventId);
+      if (!event) {
+        return res.status(404).json({ message: "Event not found" });
+      }
 
-    const event = await Event.findById(eventId);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+      if (event.ticketsAvailable < numberOfTickets) {
+        return res.status(400).json({ message: "Not enough tickets available" });
+      }
 
-    if (event.status !== 'approved') {
-      return res.status(400).json({ message: 'Event is not approved for booking' });
-    }
-
-    if (quantity > event.ticketsAvailable) {
-      return res.status(400).json({
-        message: `Not enough tickets available. Only ${event.ticketsAvailable} left.`
+      // Create new booking
+      const booking = new bookingModel({
+        event: eventId,
+        user: userId,
+        numberOfTickets,
+        totalPrice: event.price * numberOfTickets,
+        status: 'confirmed'
       });
+
+      // Update event's available tickets
+      event.ticketsAvailable -= numberOfTickets;
+      await event.save();
+
+      const newBooking = await booking.save();
+      return res.status(201).json(newBooking);
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
     }
+  },
 
-    const totalPrice = quantity * event.ticketPrice;
+  // Get booking details by ID
+  getBookingById: async (req, res) => {
+    try {
+      const booking = await bookingModel.findById(req.params.id)
+        .populate('event', 'title date location')
+        .populate('user', 'name email');
 
-    const booking = await Booking.create({
-      user: req.user._id,
-      event: event._id,
-      quantity,
-      totalPrice
-    });
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
 
-    event.ticketsAvailable -= quantity;
-    event.bookedTickets += quantity;
-    await event.save();
+      // Check if the booking belongs to the requesting user
+      if (booking.user.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: "Not authorized to view this booking" });
+      }
 
-    res.status(201).json({ message: 'Booking successful', booking });
-  } catch (error) {
-    console.error('Book Tickets Error:', error.message);
-    res.status(500).json({ message: 'Server error while booking tickets' });
+      return res.status(200).json(booking);
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Cancel a booking
+  cancelBooking: async (req, res) => {
+    try {
+      const booking = await bookingModel.findById(req.params.id);
+      
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Check if the booking belongs to the requesting user
+      if (booking.user.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: "Not authorized to cancel this booking" });
+      }
+
+      // Update event's available tickets
+      const event = await eventModel.findById(booking.event);
+      if (event) {
+        event.ticketsAvailable += booking.numberOfTickets;
+        await event.save();
+      }
+
+      // Update booking status
+      booking.status = 'cancelled';
+      await booking.save();
+
+      return res.status(200).json({ 
+        message: "Booking cancelled successfully" 
+      });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
   }
 };
 
-
-
-// View user's bookings : DB failure or query error
-const getUserBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find({ user: req.user._id }).populate('event');
-    res.status(200).json(bookings);
-  } catch (error) {
-    console.error('Get Bookings Error:', error.message);
-    res.status(500).json({ message: 'Error retrieving your bookings' });
-  }
-};
-
-
-// Cancel booking : Booking not found, user unauthorized, event not found, DB save/remove errors
-const cancelBooking = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id).populate('event');
-    if (!booking) return res.status(404).json({ message: 'Booking not found' });
-
-    if (String(booking.user) !== String(req.user._id)) {
-      return res.status(403).json({ message: 'Not authorized to cancel this booking' });
-    }
-
-    const event = await Event.findById(booking.event._id);
-    if (!event) {
-      return res.status(404).json({ message: 'Associated event not found' });
-    }
-
-    event.ticketsAvailable += booking.quantity;
-    event.bookedTickets -= booking.quantity;
-    await event.save();
-
-    await booking.remove();
-
-    res.json({ message: 'Booking cancelled and tickets restored' });
-  } catch (error) {
-    console.error('Cancel Booking Error:', error.message);
-    res.status(500).json({ message: 'Server error while cancelling booking' });
-  }
-};
-
-module.exports = {
-  bookTickets,
-  getUserBookings,
-  cancelBooking
-};
+module.exports = bookingController;

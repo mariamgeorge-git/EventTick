@@ -6,24 +6,21 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
-const authRoutes = require('./routes/auth');
-
 
 dotenv.config();  // Load environment variables
 const app = express();
 
-app.use('/api/v1/events', eventRoutes); 
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+// Routes
 app.use('/api/v1/users', userRoutes);
-
+app.use('/api/v1/events', eventRoutes); 
 app.use('/api/v1/bookings', bookingRoutes);
-app.use('/api/v1/auth', authRoutes); // Use the auth routes
-
 
 //Connect to mongodb
-mongoose.connect("mongodb+srv://robamazen:robamazen@swproj.edqyn7o.mongodb.net/", {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -33,7 +30,7 @@ mongoose.connect("mongodb+srv://robamazen:robamazen@swproj.edqyn7o.mongodb.net/"
   process.exit(1);  // Exit process if connection fails
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

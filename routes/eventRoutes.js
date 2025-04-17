@@ -1,29 +1,20 @@
 const express = require('express');
-const {
-  getEvents,
-  getEventById,
-  createEvent,
-  updateEvent,
-  deleteEvent,
-  getMyEventAnalytics,
-  updateEventStatus
-} = require('../Controllers/eventController');
-
-const { protect, authorizeRoles } = require('../middleware/authorization');
+const eventController = require('../Controllers/eventController');
+const { authenticateToken, authorizeAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Public: View all events and view a single event
-router.get('/', getEvents);
-router.get('/:id', getEventById);
+// Public routes
+router.get('/', eventController.getEvents);
+router.get('/:id', eventController.getEventById);
 
-// Organizer: Create, update, delete events and view event analytics
-router.post('/',  createEvent);
-router.put('/:id', updateEvent);
-router.delete('/:id', deleteEvent);
-router.get('/organizer/analytics', getMyEventAnalytics);
+// Protected routes
+router.post('/', authenticateToken, eventController.createEvent);
+router.put('/:id', authenticateToken, eventController.updateEvent);
+router.delete('/:id', authenticateToken, eventController.deleteEvent);
+router.get('/organizer/analytics', authenticateToken, eventController.getMyEventAnalytics);
 
-// Admin: Update event status
-router.put('/:id/status', updateEventStatus);
+// Admin routes
+router.put('/:id/status', authenticateToken, authorizeAdmin, eventController.updateEventStatus);
 
 module.exports = router;
