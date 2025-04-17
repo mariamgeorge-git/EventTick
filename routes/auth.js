@@ -1,10 +1,17 @@
 const express = require('express');
-const { registerUser, loginUser, getProfile } = require('../Controllers/userController');
-const { protect } = require('../middleware/authorization');
 const router = express.Router();
 
+ const { registerUser, loginUser } = require('../Controllers/userController');
+
+//console.log('Auth routes loaded');
 router.post('/register', registerUser);
 router.post('/login', loginUser);
-//add forget password api
 
 module.exports = router;
+
+router.get('/test', (req, res) => {
+    res.send('Auth route is working 🎉');
+  });
+  
+
+
