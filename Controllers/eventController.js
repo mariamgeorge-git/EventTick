@@ -1,10 +1,12 @@
 const Event = require('../models/EventModel');
 
 const eventController = {
-  // Public: View all approved events
+  // Public: View all events
   getEvents: async (req, res) => {
     try {
-      const events = await Event.find({ status: 'approved' });
+      const events = await Event.find()
+        .populate('organizer', 'name email') // Include organizer details
+        .select('-__v'); // Exclude version key
       return res.status(200).json(events);
     } catch (error) {
       console.error('Get Events Error:', error.message);
@@ -41,6 +43,7 @@ const eventController = {
         ticketPrice,
         description,
         organizer: req.user._id,
+        status: 'pending' // Default status for new events
       });
 
       await event.save();
@@ -62,7 +65,7 @@ const eventController = {
         return res.status(403).json({ message: 'Not authorized to update this event' });
       }
 
-      const updatableFields = ['title', 'description', 'location', 'date', 'ticketsAvailable', 'ticketPrice'];
+      const updatableFields = ['name', 'description', 'location', 'date', 'ticketsAvailable', 'ticketPrice'];
       updatableFields.forEach(field => {
         if (req.body[field] !== undefined) {
           event[field] = req.body[field];
@@ -87,7 +90,7 @@ const eventController = {
         return res.status(403).json({ message: 'Not authorized to delete this event' });
       }
 
-      await event.remove();
+      await Event.findByIdAndDelete(req.params.id);
       return res.status(200).json({ message: 'Event deleted' });
     } catch (error) {
       console.error('Delete Event Error:', error.message);
@@ -100,7 +103,7 @@ const eventController = {
     try {
       const events = await Event.find({ organizer: req.user._id });
       const analytics = events.map(event => ({
-        title: event.title,
+        name: event.name,
         percentBooked: event.ticketsAvailable + event.bookedTickets === 0
           ? '0.00'
           : ((event.bookedTickets / (event.ticketsAvailable + event.bookedTickets)) * 100).toFixed(2)
@@ -133,15 +136,15 @@ const eventController = {
     }
   },
 
-  // Get list of all events (Public)
-  getAllEvents: async (req, res) => {
-    try {
-      const events = await Event.find();
-      return res.status(200).json(events);
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
-    }
-  },
+//   // Get list of all events (Public)
+//   getAllEvents: async (req, res) => {
+//     try {
+//         const events = await Event.find();
+//         return res.status(200).json(events);
+//     } catch (error) {
+//         return res.status(500).json({ message: error.message });
+//     }
+// },
 
   // Get details of a single event (Public)
   getEventById: async (req, res) => {

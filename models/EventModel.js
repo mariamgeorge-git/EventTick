@@ -44,12 +44,12 @@ const eventSchema = new mongoose.Schema({
   },
   TicketAvailable: {
     type: Number,
-    required: false, //lazm tkon true bs it wouldnt work gher keda hahsouf baaden 
+    required: true, //lazm tkon true bs it wouldnt work gher keda hahsouf baaden 
     min: 0
   },
   Price: {
     type: Number,
-    required:false, //lazm tkon true bs it wouldnt work gher keda hahsouf baaden 
+    required:true, //lazm tkon true bs it wouldnt work gher keda hahsouf baaden 
     min: [0, "Price cannot be negative"]
   },
   createdAt: {
