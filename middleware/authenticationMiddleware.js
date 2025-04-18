@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
-const secretKey = process.env.SECRET_KEY;
+const secretKey = process.env.mytenomk;
 
 module.exports = function authenticationMiddleware(req, res, next) {
   const cookie = req.cookies; // if not working then last option req.headers.cookie then extract token
@@ -17,12 +17,10 @@ module.exports = function authenticationMiddleware(req, res, next) {
 
   jwt.verify(token, secretKey, (error, decoded) => {
     if (error) {
+      console.log("JWT error:", error);  // Log the error
       return res.status(403).json({ message: "Invalid token" });
     }
-
-    // Attach the decoded user ID to the request object for further use
-    //console.log(decoded.user)
-    
+    console.log("Decoded token:", decoded);  // Log the decoded token
     req.user = decoded.user;
     next();
   });

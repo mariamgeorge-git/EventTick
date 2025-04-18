@@ -5,7 +5,7 @@ const { authenticateToken, authorizeAdmin } = require('../middleware/auth');
 const router = express.Router();
 
 // Public routes
-router.get('/', eventController.getEvents);
+router.get('/events', eventController.getAllEvents); 
 router.get('/:id', eventController.getEventById);
 
 // Protected routes

@@ -42,14 +42,14 @@ const eventSchema = new mongoose.Schema({
     required: [true, "Capacity is required"],
     min: [1, "Capacity must be at least 1"]
   },
-  ticketsAvailable: {
+  TicketAvailable: {
     type: Number,
-    required: true,
+    required: false, //lazm tkon true bs it wouldnt work gher keda hahsouf baaden 
     min: 0
   },
-  price: {
+  Price: {
     type: Number,
-    required: [true, "Price is required"],
+    required:false, //lazm tkon true bs it wouldnt work gher keda hahsouf baaden 
     min: [0, "Price cannot be negative"]
   },
   createdAt: {
