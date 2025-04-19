@@ -1,5 +1,5 @@
 const express = require('express');
-const userController = require('../controllers/userController');
+const userController = require('../Controllers/userController');
 const { authenticateToken, authorizeAdmin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -7,7 +7,7 @@ const router = express.Router();
 // Public routes
 router.post('/register', userController.register);
 router.post('/login', userController.login);
-router.post('/forget-password', userController.forgetPassword);
+router.post('/forgetpassword', userController.forgetPassword);
 
 // Protected routes
 router.get('/profile', authenticateToken, userController.getCurrentUser);
