@@ -18,11 +18,6 @@ app.use(cors());
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/events', eventRoutes); 
 app.use('/api/v1/bookings', bookingRoutes);
-<<<<<<< HEAD
-app.use('api/v1/',authRoutes); // Use the auth routes
-
-=======
->>>>>>> main
 
 //Connect to mongodb
 mongoose.connect(process.env.MONGO_URI, {
