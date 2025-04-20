@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Event = require('../models/EventModel');
+const Booking = require('../models/BookingModel');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const secretKey = process.env.JWT_SECRET;
@@ -92,6 +94,7 @@ const userController = {
         { expiresIn: '3h' }
       );
 
+      // Send both cookie and token in response
       return res
         .cookie('token', token, {
           expires: expiresAt,
@@ -100,7 +103,11 @@ const userController = {
           sameSite: 'none'
         })
         .status(200)
-        .json({ message: 'Login successful', user });
+        .json({ 
+          message: 'Login successful', 
+          user,
+          token // Include token in response body
+        });
     } catch (error) {
       console.error('Error logging in:', error);
       res.status(500).json({ message: 'Server error' });
@@ -157,7 +164,8 @@ const userController = {
   updateUser: async (req, res) => {
     try {
       const updates = { ...req.body };
-      
+      const userId = req.params.id || req.user._id; // Use URL param if available, otherwise use authenticated user's ID
+
       // Validate age if provided
       if (updates.age && (updates.age < 18 || updates.age > 100)) {
         return res.status(400).json({ message: 'Age must be between 18 and 100' });
@@ -168,26 +176,41 @@ const userController = {
         return res.status(400).json({ message: 'Invalid role specified' });
       }
 
+      // Only admin can update roles
+      if (updates.role && req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Only admin can update user roles' });
+      }
+
       // Hash password if it's being updated
       if (updates.password) {
         updates.password = await bcrypt.hash(updates.password, 10);
       }
 
+      // If not admin and trying to update another user
+      if (req.user.role !== 'admin' && userId !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Not authorized to update other users' });
+      }
+
       const user = await User.findByIdAndUpdate(
-        req.params.id,
+        userId,
         updates,
         { new: true, runValidators: true }
       );
 
+      // If no user is found
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
+
+      // Send successful response
       return res.status(200).json({ user, msg: 'User updated successfully' });
     } catch (error) {
+      // Handle validation error
       if (error.name === 'ValidationError') {
         return res.status(400).json({ message: error.message });
       }
-      return res.status(500).json({ message: error.message });
+      // Handle any other errors
+      return res.status(500).json({ message: 'Error updating user', error: error.message });
     }
   },
 
@@ -203,8 +226,95 @@ const userController = {
     }
   },
 
-  getCurrentUser: (req, res) => {
-    res.send(req.user);
+  getCurrentUser: async (req, res) => {
+    try {
+      // req.user is set by the authenticateToken middleware
+      const user = await User.findById(req.user._id).select('-password');
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      return res.status(200).json(user);
+    } catch (error) {
+      console.error('Get Current User Error:', error);
+      return res.status(500).json({ message: 'Error retrieving user profile' });
+    }
+  },
+  getUserBookings: async (req, res) => {
+    try {
+      const bookings = await Booking.find({ user: req.user._id })
+        .populate('event')
+        .sort({ bookingDate: -1 });
+      
+      return res.status(200).json(bookings);
+    } catch (error) {
+      console.error('Error getting user bookings:', error);
+      return res.status(500).json({ message: 'Error fetching bookings' });
+    }
+  },
+
+  getUserEvents: async (req, res) => {
+    try {
+      const events = await Event.find({ organizer: req.user._id });
+      
+      return res.status(200).json({
+        success: true,
+        count: events.length,
+        data: events
+      });
+    } catch (error) {
+      console.error('Error getting user events:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error retrieving events',
+        error: error.message
+      });
+    }
+  },
+
+  getUserEventsAnalytics: async (req, res) => {
+    try {
+      const events = await Event.find({ organizer: req.user._id });
+      const bookings = await Booking.find({ event: { $in: events.map(e => e._id) } });
+
+      const analytics = {
+        totalEvents: events.length,
+        totalRevenue: 0,
+        totalBookings: bookings.length,
+        eventsAnalytics: events.map(event => {
+          const eventBookings = bookings.filter(b => b.event.toString() === event._id.toString());
+          const revenue = eventBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
+          const bookedTickets = eventBookings.reduce((sum, booking) => sum + booking.numberOfTickets, 0);
+          
+          return {
+            eventId: event._id,
+            title: event.title,
+            status: event.status,
+            capacity: event.capacity,
+            ticketsSold: bookedTickets,
+            ticketsAvailable: event.ticketsAvailable,
+            occupancyRate: ((bookedTickets / event.capacity) * 100).toFixed(2) + '%',
+            revenue: revenue,
+            averageTicketPrice: event.price,
+            date: event.date
+          };
+        })
+      };
+
+      // Calculate total revenue
+      analytics.totalRevenue = analytics.eventsAnalytics.reduce((sum, event) => sum + event.revenue, 0);
+
+      return res.status(200).json({
+        success: true,
+        data: analytics
+      });
+    } catch (error) {
+      console.error('Error getting user events analytics:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error retrieving events analytics',
+        error: error.message
+      });
+    }
   }
 };
 module.exports = userController;
