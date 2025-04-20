@@ -3,53 +3,95 @@ const mongoose = require('mongoose');
 const eventSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
-    trim: true
+    required: [true, "Title is required"],
+    trim: true,
+    minlength: [3, "Title must be at least 3 characters long"]
   },
   description: {
     type: String,
-    required: true
+    required: [true, "Description is required"],
+    trim: true
   },
   date: {
     type: Date,
-    required: true
+    required: [true, "Event date is required"],
+    validate: {
+      validator: function(value) {
+        return value > new Date();
+      },
+      message: "Event date must be in the future"
+    }
   },
   location: {
     type: String,
+    required: [true, "Location is required"],
+    trim: true
+  },
+  organizer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
-  category: {
+  status: {
     type: String,
-    required: true
+    enum: ['pending', 'approved', 'cancelled'],
+    default: 'pending'
   },
-  image: {
-    type: String, // URL or file path of the image
-    required: false
-  },
-  ticketPrice: {
+  capacity: {
     type: Number,
-    required: true,
-    min: 0
+    required: [true, "Capacity is required"],
+    min: [1, "Capacity must be at least 1"]
   },
-  totalTickets: {
+  ticketsAvailable: {
     type: Number,
-    required: true,
-    min: 1
+    min: [0, "Available tickets cannot be negative"],
+    default: function() {
+      return this.capacity;
+    },
+    validate: {
+      validator: function(value) {
+        return value <= this.capacity;
+      },
+      message: "Available tickets cannot exceed capacity"
+    }
   },
-  remainingTickets: {
+  price: {
     type: Number,
-    required: true,
-    min: 0
+    required: [true, "Price is required"],
+    min: [0, "Price cannot be negative"],
+    validate: {
+      validator: function(value) {
+        // Ensure price has at most 2 decimal places
+        return /^\d+(\.\d{0,2})?$/.test(value.toString());
+      },
+      message: "Price can only have up to 2 decimal places"
+    }
   },
-  availableTickets: { type: Number, required: true },
-organizerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
-}, 
-{ timestamps: true });
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    immutable: true
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true
+});
 
+// Update the updatedAt field before saving
+eventSchema.pre("save", function(next) {
+  this.updatedAt = Date.now();
+  
+  // Ensure ticketsAvailable is set to capacity if not provided
+  if (this.isNew && this.ticketsAvailable === undefined) {
+    this.ticketsAvailable = this.capacity;
+  }
+  
+  next();
+});
 
-
-module.exports = mongoose.model("Event", EventSchema);
-
-// Export the model
 const Event = mongoose.model('Event', eventSchema);
+
 module.exports = Event;
