@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Password is required"],
     minlength: [6, "Password must be at least 6 characters long"],
-    select: false // Password won't be returned in queries by default
+    select: false
   },
   role: {
     type: String,
@@ -49,28 +49,24 @@ const userSchema = new mongoose.Schema({
     default: Date.now
   }
 }, {
-  timestamps: true, // Automatically manage createdAt and updatedAt
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-// Update the updatedAt field before saving
 userSchema.pre("save", function (next) {
   if (this.isModified('password')) {
-    // You can add password hashing here if not done in controller
   }
   this.updatedAt = Date.now();
   next();
 });
 
-// Remove password from JSON response
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
 
-// Method to compare password
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

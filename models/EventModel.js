@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const eventSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, "Title is required"],
+    required: [true, "Name is required"],
     trim: true,
-    minlength: [3, "Title must be at least 3 characters long"]
+    minlength: [3, "Name must be at least 3 characters long"]
   },
   description: {
     type: String,
@@ -37,19 +37,14 @@ const eventSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'cancelled'],
     default: 'pending'
   },
-  capacity: {
+  ticketsAvailable: {
     type: Number,
-    required: [true, "Capacity is required"],
-    min: [1, "Capacity must be at least 1"]
-  },
-  TicketAvailable: {
-    type: Number,
-    required: true, //lazm tkon true bs it wouldnt work gher keda hahsouf baaden 
-    min: 0
+    required: true,
+    min: [0, "Available tickets cannot be negative"]
   },
   Price: {
     type: Number,
-    required:true, //lazm tkon true bs it wouldnt work gher keda hahsouf baaden 
+    required: true,
     min: [0, "Price cannot be negative"]
   },
   createdAt: {

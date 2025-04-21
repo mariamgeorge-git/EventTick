@@ -1,25 +1,33 @@
-// server.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const userController = require('./Controllers/userController');
 
-dotenv.config();  // Load environment variables
+dotenv.config();  
 const app = express();
 
-// Middleware
-app.use(express.json());
-app.use(cors());
 
-// Routes
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
+
+
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/events', eventRoutes); 
 app.use('/api/v1/bookings', bookingRoutes);
+app.put('/api/v1/forgetPassword', userController.forgetPassword);
+app.post('/api/v1/register', userController.register);
+app.post('/api/v1/login', userController.login);
 
-//Connect to mongodb
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -27,7 +35,7 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('MongoDB connected'))
 .catch((err) => {
   console.error(err.message);
-  process.exit(1);  // Exit process if connection fails
+  process.exit(1);  
 });
 
 const PORT = process.env.PORT || 3000;

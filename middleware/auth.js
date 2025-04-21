@@ -1,16 +1,22 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+require('dotenv').config();
 
 const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    let token = authHeader && authHeader.split(' ')[1];
+
+    if (!token && req.cookies) {
+      token = req.cookies.token;
+    }
 
     if (!token) {
       return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const secretKey = process.env.JWT_SECRET || 'mytenomk';
+    const decoded = jwt.verify(token, secretKey);
     const user = await User.findById(decoded.user.userId);
 
     if (!user) {
@@ -20,6 +26,7 @@ const authenticateToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.error('Auth error:', error);
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Token expired. Please login again.' });
     }
@@ -34,7 +41,40 @@ const authorizeAdmin = (req, res, next) => {
   next();
 };
 
+const authorizeEventOrganizer = (req, res, next) => {
+  if (req.user.role !== 'event_organizer') {
+    return res.status(403).json({ message: 'Access denied. Event organizer privileges required.' });
+  }
+  next();
+};
+
+const authorizeAdminOrOrganizer = (req, res, next) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'event_organizer') {
+    return res.status(403).json({ message: 'Access denied. Admin or event organizer privileges required.' });
+  }
+  next();
+};
+
+const authorizeStandardUser = (req, res, next) => {
+  if (req.user.role !== 'standard_user') {
+    return res.status(403).json({ message: 'Access denied. Standard user privileges required.' });
+  }
+  next();
+};
+
+const authenticatedUser = (req, res, next) => {
+  const validRoles = ['admin', 'event_organizer', 'standard_user'];
+  if (!validRoles.includes(req.user.role)) {
+    return res.status(403).json({ message: 'Access denied. Valid user role required.' });
+  }
+  next();
+};
+
 module.exports = {
   authenticateToken,
-  authorizeAdmin
+  authorizeAdmin,
+  authorizeEventOrganizer,
+  authorizeAdminOrOrganizer,
+  authorizeStandardUser,
+  authenticatedUser
 }; 

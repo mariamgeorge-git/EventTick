@@ -36,7 +36,6 @@ const bookingSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Add index for faster queries
 bookingSchema.index({ event: 1, user: 1 });
 
 const Booking = mongoose.model("Booking", bookingSchema);

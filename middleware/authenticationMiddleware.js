@@ -3,9 +3,8 @@ require('dotenv').config();
 const secretKey = process.env.mytenomk;
 
 module.exports = function authenticationMiddleware(req, res, next) {
-  const cookie = req.cookies; // if not working then last option req.headers.cookie then extract token
+  const cookie = req.cookies;
   console.log('inside auth middleware');
-  // console.log(cookie);
 
   if (!cookie) {
     return res.status(401).json({ message: "No Cookie provided" });
@@ -17,10 +16,10 @@ module.exports = function authenticationMiddleware(req, res, next) {
 
   jwt.verify(token, secretKey, (error, decoded) => {
     if (error) {
-      console.log("JWT error:", error);  // Log the error
+      console.log("JWT error:", error);
       return res.status(403).json({ message: "Invalid token" });
     }
-    console.log("Decoded token:", decoded);  // Log the decoded token
+    console.log("Decoded token:", decoded);
     req.user = decoded.user;
     next();
   });
