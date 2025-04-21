@@ -2,9 +2,11 @@ const User = require('../models/User');
 const Event = require('../models/EventModel');
 const Booking = require('../models/BookingModel');
 const jwt = require('jsonwebtoken');
+const { sendVerificationEmail } = require('../utils/emailService');
 require('dotenv').config();
 const secretKey = process.env.JWT_SECRET;
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userController = {
   register: async (req, res) => {
@@ -100,25 +102,77 @@ const userController = {
 
   forgetPassword: async (req, res) => {
     try {
-      const { email, newPassword } = req.body;
+      const { email } = req.body;
   
-      if (!email || !newPassword) {
-        return res.status(400).json({ message: 'Email and new password are required' });
+      if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
       }
   
       const user = await User.findOne({ email });
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-  
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-  
-      user.password = hashedPassword;
+
+      const verificationCode = crypto.randomBytes(3).toString('hex').toUpperCase();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      user.verificationCode = {
+        code: verificationCode,
+        expiresAt
+      };
       await user.save();
+
+      await sendVerificationEmail(email, verificationCode);
   
-      return res.status(200).json({ message: 'Password updated successfully' });
+      return res.status(200).json({ 
+        message: 'Verification code sent to your email',
+        email: email
+      });
     } catch (error) {
       console.error('Error in forget password:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  },
+
+  verifyAndResetPassword: async (req, res) => {
+    try {
+      const { email, verificationCode, newPassword } = req.body;
+
+      if (!email || !verificationCode || !newPassword) {
+        return res.status(400).json({ 
+          message: 'Email, verification code, and new password are required' 
+        });
+      }
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (!user.verificationCode || !user.verificationCode.code) {
+        return res.status(400).json({ 
+          message: 'No verification code found. Please request a new one.' 
+        });
+      }
+
+      if (user.verificationCode.code !== verificationCode) {
+        return res.status(400).json({ message: 'Invalid verification code' });
+      }
+
+      if (new Date() > user.verificationCode.expiresAt) {
+        return res.status(400).json({ 
+          message: 'Verification code has expired. Please request a new one.' 
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+      user.verificationCode = undefined;
+      await user.save();
+
+      return res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error) {
+      console.error('Error in verify and reset password:', error);
       return res.status(500).json({ message: 'Server error' });
     }
   },

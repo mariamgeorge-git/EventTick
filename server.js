@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
@@ -24,7 +23,8 @@ app.use(cors({
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/events', eventRoutes); 
 app.use('/api/v1/bookings', bookingRoutes);
-app.put('/api/v1/forgetPassword', userController.forgetPassword);
+app.post('/api/v1/forgetpassword', userController.forgetPassword);
+app.post('/api/v1/verifyresetpassword', userController.verifyAndResetPassword);
 app.post('/api/v1/register', userController.register);
 app.post('/api/v1/login', userController.login);
 

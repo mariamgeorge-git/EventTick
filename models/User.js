@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  verificationCode: {
+    code: String,
+    expiresAt: Date
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -64,6 +68,7 @@ userSchema.pre("save", function (next) {
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.verificationCode;
   return obj;
 };
 
