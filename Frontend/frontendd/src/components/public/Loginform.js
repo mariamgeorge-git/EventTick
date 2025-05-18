@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '/Users/asermohamed/Desktop/Software/Frontend/frontendd/src/components/auth/AuthContext.js'; // corrected path to auth folder
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 // import './LoginForm.css'; // optional CSS
 
@@ -48,13 +48,7 @@ const Loginform = () => {  // keep the component name matching filename casing
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5'
-    }}>
+    <div >
       <form onSubmit={handleSubmit} style={{
         backgroundColor: 'white',
         padding: '2rem',
@@ -116,6 +110,12 @@ const Loginform = () => {  // keep the component name matching filename casing
           {loading ? 'Logging in...' : 'Log In'}
         </button>
       </form>
+      <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+        Forgot your password?{' '}
+        <Link to="/forget-password" style={{ color: '#007bff', textDecoration: 'none' }}>
+          Reset it here
+        </Link>
+      </p>
     </div>
   );
 };

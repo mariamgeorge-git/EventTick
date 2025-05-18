@@ -1,8 +1,7 @@
 import React from 'react';
-import LoginForm from '../components/public/Loginform';
-import { Link } from 'react-router-dom';
+import Resetpasswordform from '../components/public/Resetpasswordform.js'; // Adjust path if needed
 
-const LoginPage = () => (
+const ResetPasswordPage = () => (
   <div style={{
     display: 'flex',
     justifyContent: 'center',
@@ -10,8 +9,8 @@ const LoginPage = () => (
     minHeight: '100vh',
     backgroundColor: '#f5f5f5'
   }}>
-    <LoginForm />
+    <Resetpasswordform />
   </div>
 );
 
-export default LoginPage;
+export default ResetPasswordPage;

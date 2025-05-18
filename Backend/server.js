@@ -25,10 +25,10 @@ app.use(cookieParser());
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/events', eventRoutes); 
 app.use('/api/v1/bookings', bookingRoutes);
-app.post('/api/v1/auth/login', userController.login);
-app.post('/api/v1/auth/register', userController.register);
-app.post('/api/v1/auth/forgetpassword', userController.forgetPassword);
-app.post('/api/v1/auth/verifyresetpassword', userController.verifyAndResetPassword);
+app.post('/api/v1/login', userController.login);
+app.post('/api/v1/register', userController.register);
+app.post('/api/v1/forgetpassword', userController.forgetPassword);
+app.post('/api/v1/verifyresetpassword', userController.verifyAndResetPassword);
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
