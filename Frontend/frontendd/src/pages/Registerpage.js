@@ -1,5 +1,5 @@
 import React from 'react';
-import Registerform from '/Users/asermohamed/Desktop/Software/Frontend/frontendd/src/components/public/Registerform.js'; // Use relative path
+import Registerform from '../components/public/Registerform.js';
 
 const Registerpage = () => {
   return <Registerform />;
