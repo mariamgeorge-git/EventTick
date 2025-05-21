@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { AuthContext } from '/Users/asermohamed/Desktop/Software/Frontend/frontendd/src/components/auth/AuthContext.js'; // corrected path to auth folder
+import { AuthContext } from '../auth/AuthContext.js';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 // import './LoginForm.css'; // optional CSS
