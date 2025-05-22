@@ -63,6 +63,12 @@ const eventSchema = new mongoose.Schema({
 // Update the updatedAt field before saving
 eventSchema.pre("save", function(next) {
   this.updatedAt = Date.now();
+  
+  // Ensure ticketsAvailable is set to capacity if not provided
+  if (this.isNew && this.ticketsAvailable === undefined) {
+    this.ticketsAvailable = this.capacity;
+  }
+  
   next();
 });
 

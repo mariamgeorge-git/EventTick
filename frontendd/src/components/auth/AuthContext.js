@@ -11,6 +11,10 @@ export const AuthProvider = ({ children }) => {
       const res = await api.post('/login', { email, password });
       if (res.data.user) {
         setUser(res.data.user);
+        // Store the token in localStorage
+        if (res.data.token) {
+          localStorage.setItem('token', res.data.token);
+        }
         return res;
       } else {
         throw new Error('No user data in response');
@@ -28,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    // clear tokens/localStorage here if used
+    localStorage.removeItem('token'); // Clear the token on logout
   };
 
   const forgotPassword = async (email) => {
@@ -76,12 +80,39 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching event:', error);
       throw error;
+  const updateUser = async (userData) => {
+    try {
+      const res = await api.put('/users/profile', userData);
+      if (res.data.user) {
+        setUser(res.data.user);
+        return res.data.user;
+      } else {
+        throw new Error('No user data in response');
+      }
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data?.message || 'Failed to update profile');
+      } else if (error.request) {
+        throw new Error('No response from server. Please check your connection.');
+      } else {
+        throw new Error(error.message || 'An unexpected error occurred');
+      }
     }
   };
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, forgotPassword, verifyResetCode, fetchEvents, fetchEventById }}>
+ return (
+    <AuthContext.Provider value={{ 
+      user, 
+      setUser, 
+      login, 
+      logout, 
+      forgotPassword, 
+      verifyResetCode, 
+      fetchEvents,
+      updateUser 
+    }}>
       {children}
     </AuthContext.Provider>
-  );
+  );
 };
+    
