@@ -14,10 +14,10 @@ import {
   Select,
   MenuItem
 } from '@mui/material';
-import UserRow from '../components/UserRow';
+import UserRow from '../components/admin/UserRow';
 import { toast } from 'react-toastify';
-import ConfirmationDialog from '../components/ConfirmationDialog';
-import UpdateUserRoleModal from '../components/UpdateUserRoleModal';
+import ConfirmationDialog from '../components/admin/ConfirmationDialog';
+import UpdateUserRoleModal from '../components/admin/UpdateUserRoleModal';
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);

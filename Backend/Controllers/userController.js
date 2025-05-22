@@ -201,7 +201,7 @@ const userController = {
   updateUser: async (req, res) => {
     try {
       const updates = { ...req.body };
-      const userId = req.user._id;
+      const userId = req.params.id || req.user._id;  // Get ID from URL params or authenticated user
 
       if (updates.age && (updates.age < 18 || updates.age > 100)) {
         return res.status(400).json({ message: 'Age must be between 18 and 100' });
@@ -220,6 +220,10 @@ const userController = {
         updates,
         { new: true, runValidators: true }
       );
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
   
       return res.status(200).json({ user, msg: 'User updated successfully' });
     } catch (error) {
