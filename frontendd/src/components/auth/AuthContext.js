@@ -70,8 +70,37 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUser = async (userData) => {
+    try {
+      const res = await api.put('/users/profile', userData);
+      if (res.data.user) {
+        setUser(res.data.user);
+        return res.data.user;
+      } else {
+        throw new Error('No user data in response');
+      }
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data?.message || 'Failed to update profile');
+      } else if (error.request) {
+        throw new Error('No response from server. Please check your connection.');
+      } else {
+        throw new Error(error.message || 'An unexpected error occurred');
+      }
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, forgotPassword, verifyResetCode, fetchEvents }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      setUser, 
+      login, 
+      logout, 
+      forgotPassword, 
+      verifyResetCode, 
+      fetchEvents,
+      updateUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );

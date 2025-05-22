@@ -1,44 +1,46 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../auth/AuthContext';
-import './UpdateProfileForm.css';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../../components/auth/AuthContext';
+import './UpdateProfileForm.css'; // Import the CSS file
 
-const UpdateProfileForm = ({ initialData, onUpdateSuccess, onCancel }) => {
-  const { user } = useContext(AuthContext);
+const UpdateProfileForm = ({ initialData = {}, onUpdateSuccess, onCancel }) => {
+  const { updateUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({
-    name: initialData.name || '',
-    email: initialData.email || '',
-    age: initialData.age || '',
+    name: '',
+    email: '',
+    age: '',
   });
+
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateForm = () => {
+  // Initialize form with initialData when component mounts or initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || '',
+        email: initialData.email || '',
+        age: initialData.age ? String(initialData.age) : '',
+      });
+    }
+  }, [initialData]);
+
+  const validate = () => {
     const newErrors = {};
-    
-    // Name validation
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formData.name.length < 2) {
-      newErrors.name = 'Name must be at least 2 characters long';
-    } else if (formData.name.length > 50) {
-      newErrors.name = 'Name cannot exceed 50 characters';
-    }
+    if (!formData.name.trim()) newErrors.name = 'Name is required';
+    else if (formData.name.length < 2) newErrors.name = 'Name must be at least 2 characters';
+    else if (formData.name.length > 50) newErrors.name = 'Name cannot exceed 50 characters';
 
-    // Email validation
     const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/;
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!emailPattern.test(formData.email)) {
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!emailPattern.test(formData.email.trim()))
       newErrors.email = 'Please enter a valid email';
-    }
 
-    // Age validation
-    if (!formData.age) {
-      newErrors.age = 'Age is required';
-    } else {
-      const age = parseInt(formData.age);
-      if (isNaN(age) || age < 18 || age > 100) {
-        newErrors.age = 'Age must be between 18 and 100';
+    if (!formData.age.trim()) newErrors.age = 'Age is required';
+    else {
+      const ageNum = Number(formData.age);
+      if (isNaN(ageNum) || ageNum < 18 || ageNum > 100) {
+        newErrors.age = 'Age must be a number between 18 and 100';
       }
     }
 
@@ -47,60 +49,35 @@ const UpdateProfileForm = ({ initialData, onUpdateSuccess, onCancel }) => {
   };
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
-  setFormData(prev => ({
-    ...prev,
-    [name]: name === 'email' ? value.trim() : value
-  }));
-  if (errors[name]) {
-    setErrors(prev => ({
-      ...prev,
-      [name]: ''
-    }));
-  }
-};
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    if (submitError) setSubmitError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validate()) return;
 
     setIsSubmitting(true);
-
+    setSubmitError('');
     try {
-      const response = await fetch(`/api/users/${user._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          age: parseInt(formData.age)
-        })
+      // Pass cleaned and typed data to updateUser function
+      const updatedUser = await updateUser({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        age: Number(formData.age.trim()),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
-      }
-
-      onUpdateSuccess(data.user);
+      onUpdateSuccess(updatedUser);
     } catch (error) {
-      setErrors({
-        submit: error.message || 'Failed to update profile. Please try again.'
-      });
+      setSubmitError(error.message || 'Failed to update profile. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form className="update-profile-form" onSubmit={handleSubmit} noValidate>
+    <form onSubmit={handleSubmit} noValidate className="update-profile-form">
       <div className="form-group">
         <label htmlFor="name">Name:</label>
         <input
@@ -109,13 +86,11 @@ const UpdateProfileForm = ({ initialData, onUpdateSuccess, onCancel }) => {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          className={errors.name ? 'error' : ''}
           maxLength={50}
-          required
+          disabled={isSubmitting}
+          className={errors.name ? 'error' : ''}
         />
-        {errors.name && (
-          <span className="error-message">{errors.name}</span>
-        )}
+        {errors.name && <p className="error-message">{errors.name}</p>}
       </div>
 
       <div className="form-group">
@@ -126,12 +101,10 @@ const UpdateProfileForm = ({ initialData, onUpdateSuccess, onCancel }) => {
           name="email"
           value={formData.email}
           onChange={handleChange}
+          disabled={isSubmitting}
           className={errors.email ? 'error' : ''}
-          required
         />
-        {errors.email && (
-          <span className="error-message">{errors.email}</span>
-        )}
+        {errors.email && <p className="error-message">{errors.email}</p>}
       </div>
 
       <div className="form-group">
@@ -142,35 +115,25 @@ const UpdateProfileForm = ({ initialData, onUpdateSuccess, onCancel }) => {
           name="age"
           value={formData.age}
           onChange={handleChange}
-          className={errors.age ? 'error' : ''}
           min="18"
           max="100"
-          required
+          disabled={isSubmitting}
+          className={errors.age ? 'error' : ''}
         />
-        {errors.age && (
-          <span className="error-message">{errors.age}</span>
-        )}
+        {errors.age && <p className="error-message">{errors.age}</p>}
       </div>
 
-      {errors.submit && (
-        <div className="error-message submit-error">
-          {errors.submit}
-        </div>
-      )}
+      {submitError && <p className="submit-error">{submitError}</p>}
 
       <div className="form-buttons">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="submit-button"
-        >
+        <button type="submit" disabled={isSubmitting} className="submit-button">
           {isSubmitting ? 'Updating...' : 'Update Profile'}
         </button>
-        <button
-          type="button"
+        <button 
+          type="button" 
           onClick={onCancel}
-          className="cancel-button"
           disabled={isSubmitting}
+          className="cancel-button"
         >
           Cancel
         </button>
@@ -179,4 +142,4 @@ const UpdateProfileForm = ({ initialData, onUpdateSuccess, onCancel }) => {
   );
 };
 
-export default UpdateProfileForm; 
+export default UpdateProfileForm;
