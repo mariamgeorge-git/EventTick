@@ -11,6 +11,7 @@ import Resetpasswordpage from './pages/Resetpasswordpage';
 import Footer from './components/shared/Footer';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminUsersPage from './pages/AdminUsersPage';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               <Route path="/dashboard" element={<ProfilePage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
             </Routes>
           </div>
           <Footer />

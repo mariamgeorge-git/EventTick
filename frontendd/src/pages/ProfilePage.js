@@ -2,9 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../components/auth/AuthContext';
 import UpdateProfileForm from '../components/public/UpdateProfileForm';
 import './ProfilePage.css';
+import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
@@ -55,6 +57,24 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-container">
+      {/* Admin-only User Management button */}
+      {user && user.role === 'admin' && (
+        <button
+          style={{
+            margin: '20px 0',
+            padding: '10px 20px',
+            background: '#1976d2',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+          onClick={() => navigate('/admin/users')}
+        >
+          Go to User Management
+        </button>
+      )}
+
       <h1>Profile</h1>
       
       {!isEditing ? (

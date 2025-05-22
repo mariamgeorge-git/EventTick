@@ -11,6 +11,10 @@ export const AuthProvider = ({ children }) => {
       const res = await api.post('/login', { email, password });
       if (res.data.user) {
         setUser(res.data.user);
+        // Store the token in localStorage
+        if (res.data.token) {
+          localStorage.setItem('token', res.data.token);
+        }
         return res;
       } else {
         throw new Error('No user data in response');
@@ -28,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    // clear tokens/localStorage here if used
+    localStorage.removeItem('token'); // Clear the token on logout
   };
 
   const forgotPassword = async (email) => {
