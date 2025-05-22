@@ -11,6 +11,9 @@ import Resetpasswordpage from './pages/Resetpasswordpage';
 import Footer from './components/shared/Footer';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProfilePage from './pages/ProfilePage';
+import EventList from './components/events/EventList';
+//import EventDetails from './components/events/EventDetails';
+import EventDetailsPage from './pages/EventDetailsPage';
 
 function App() {
   return (
@@ -29,6 +32,7 @@ function App() {
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               <Route path="/dashboard" element={<ProfilePage />} />
               <Route path="/profile" element={<ProfilePage />} />
+                            <Route path="/" element={<EventList />} />              <Route path="/events/:id" element={<EventDetailsPage />} />
             </Routes>
           </div>
           <Footer />

@@ -66,8 +66,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+   const fetchEventById = async (id) => {
+    try {
+      const res = await api.get(`/events/${id}`);
+      if (!res.data) {
+        throw new Error('Event not found');
+      }
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching event:', error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, forgotPassword, verifyResetCode, fetchEvents }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, forgotPassword, verifyResetCode, fetchEvents, fetchEventById }}>
       {children}
     </AuthContext.Provider>
   );
