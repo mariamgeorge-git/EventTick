@@ -70,16 +70,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-   const fetchEventById = async (id) => {
+  const fetchEventById = async (id) => {
     try {
+      console.log('Making API request for event ID:', id);
       const res = await api.get(`/events/${id}`);
+      console.log('API Response:', res);
+      
       if (!res.data) {
         throw new Error('Event not found');
       }
-      return res.data;
+      
+      // Return the entire response object
+      return res;
     } catch (error) {
-      console.error('Error fetching event:', error);
+      console.error('Error in fetchEventById:', error);
       throw error;
+    }
+  };
+
   const updateUser = async (userData) => {
     try {
       const res = await api.put('/users/profile', userData);
@@ -100,7 +108,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
- return (
+  return (
     <AuthContext.Provider value={{ 
       user, 
       setUser, 
@@ -109,10 +117,10 @@ export const AuthProvider = ({ children }) => {
       forgotPassword, 
       verifyResetCode, 
       fetchEvents,
+      fetchEventById,
       updateUser 
     }}>
       {children}
     </AuthContext.Provider>
-  );
+  );
 };
-}}
