@@ -94,9 +94,9 @@ const AdminEventsPage = () => {
                     </>
                   )}
                    {event.status === 'approved' && (
-                    <button onClick={() => handleStatusChange(event._id, 'declined')} className="decline-button">Decline</button>
+                    <button onClick={() => handleStatusChange(event._id, 'cancelled')} className="decline-button">Decline</button>
                   )}
-                   {event.status === 'declined' && (
+                   {event.status === 'cancelled' && (
                     <button onClick={() => handleStatusChange(event._id, 'approved')} className="approve-button">Approve</button>
                   )}
                 </td>

@@ -161,6 +161,7 @@ const eventController = {
   updateEventStatus: async (req, res) => {
     try {
       const event = await Event.findById(req.params.id);
+      console.log('Fetched event data in updateEventStatus:', event);
       if (!event) return res.status(404).json({ message: 'Event not found' });
 
       const { status } = req.body;
