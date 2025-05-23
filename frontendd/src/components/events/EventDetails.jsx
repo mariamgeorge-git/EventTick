@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
 import BookTicketForm from './BookTicketForm';
+import './EventDetails.css'; // Import the new CSS file
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -57,7 +58,7 @@ const EventDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="event-loading">
         <p className="text-lg">Loading event details...</p>
       </div>
     );
@@ -65,8 +66,8 @@ const EventDetails = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-red-500 mb-4">{error}</p>
+      <div className="event-error-message">
+        <p>{error}</p>
         <Link to="/" className="text-blue-500 hover:text-blue-700">
           Return to Events
         </Link>
@@ -76,7 +77,7 @@ const EventDetails = () => {
 
   if (!event) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="event-details-container">
         <p className="text-lg mb-4">Event not found</p>
         <Link to="/" className="text-blue-500 hover:text-blue-700">
           Return to Events
@@ -86,47 +87,51 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold mb-4">{event.title}</h1>
+    <div className="event-details-container">
+      <div className="event-details-card">
+        <h1 className="event-details-title">{event.title}</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <p className="mb-2">
-              <span className="font-semibold">Date:</span>{' '}
-              {new Date(event.date).toLocaleString()}
+        <div className="event-details-grid">
+          <div className="event-details-section">
+            <p className="event-detail-item">
+              <span className="event-detail-label">Date:</span>{' '}
+              <span className="event-detail-value">{new Date(event.date).toLocaleString()}</span>
             </p>
-            <p className="mb-2">
-              <span className="font-semibold">Location:</span>{' '}
-              {event.location}
+            <p className="event-detail-item">
+              <span className="event-detail-label">Location:</span>{' '}
+              <span className="event-detail-value">{event.location}</span>
             </p>
-            <p className="mb-2">
-              <span className="font-semibold">Price:</span>{' '}
-              {formatPrice(event.price)}
+            <p className="event-detail-item">
+              <span className="event-detail-label">Price:</span>{' '}
+              <span className="event-detail-value">{formatPrice(event.Price)}</span>
             </p>
-            {event.timing && (
-              <p className="mb-2">
-                <span className="font-semibold">Timing:</span>{' '}
-                {event.timing}
+            {event.ticketsAvailable !== undefined && (
+              <p className="event-detail-item">
+                <span className="event-detail-label">Tickets Available:</span>{' '}
+                <span className="event-detail-value">{event.ticketsAvailable}</span>
               </p>
             )}
           </div>
           
-          <div>
-            <h2 className="text-xl font-semibold mb-2">Description</h2>
-            <p className="text-gray-700">{event.description}</p>
+          <div className="event-details-section">
+            <h2 className="event-details-section h2">Description</h2>
+            <p className="event-description">{event.description}</p>
           </div>
         </div>
 
-        {user ? (
+        {user && user.role === 'standard_user' ? (
           <BookTicketForm event={event} onBookingSuccess={() => alert('Thanks for booking!')} />
         ) : (
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <div className="event-booking-section">
             <p className="text-center">
               Please{' '}
-              <Link to="/login" className="text-blue-500 hover:text-blue-700">
-                log in
-              </Link>{' '}
+              {user ? (
+                'log in with a standard user account'
+              ) : (
+                <Link to="/login" className="text-blue-500 hover:text-blue-700">
+                  log in
+                </Link>
+              )}{' '}
               to book tickets.
             </p>
           </div>

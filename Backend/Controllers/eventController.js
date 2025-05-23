@@ -91,7 +91,7 @@ const eventController = {
       const updates = { ...req.body };
 
       
-      if (updates.status && !['approved', 'pending', 'declined'].includes(updates.status)) {
+      if (updates.status && !['approved', 'pending', 'cancelled'].includes(updates.status)) {
         return res.status(400).json({ message: 'Invalid status value' });
       }
 
@@ -164,7 +164,7 @@ const eventController = {
       if (!event) return res.status(404).json({ message: 'Event not found' });
 
       const { status } = req.body;
-      if (!['approved', 'declined'].includes(status)) {
+      if (!['approved', 'cancelled'].includes(status)) {
         return res.status(400).json({ message: 'Invalid status value' });
       }
 

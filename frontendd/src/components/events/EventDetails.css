@@ -1,0 +1,86 @@
+/* SW-project/frontendd/src/components/events/EventDetails.css */
+
+.event-details-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #f8f9fa; /* Light background similar to UpdateProfileForm */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.event-details-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.event-details-title {
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.event-details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .event-details-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.event-details-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.event-detail-item {
+  margin-bottom: 0.75rem;
+}
+
+.event-detail-label {
+  font-weight: bold;
+  color: #555;
+  margin-right: 0.5rem;
+}
+
+.event-detail-value {
+  color: #666;
+}
+
+.event-description {
+  line-height: 1.6;
+  color: #777;
+}
+
+.event-booking-section {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #e9ecef; /* Light grey background */
+  border-radius: 4px;
+}
+
+.event-error-message {
+  color: #dc3545;
+  text-align: center;
+  padding: 1rem;
+  background-color: #f8d7da;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.event-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+} 
