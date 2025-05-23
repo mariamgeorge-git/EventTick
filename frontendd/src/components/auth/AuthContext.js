@@ -194,7 +194,12 @@ export const AuthProvider = ({ children }) => {
     console.log('updateEventStatus - ID:', id);
     console.log('updateEventStatus - Status:', status);
     try {
-      const res = await api.put(`/events/${id}`, { status }); // Corrected endpoint to PUT /events/:id
+      // Use the dedicated status update endpoint
+      const apiUrl = `/events/${id}/status`;
+      const requestBody = { status };
+      console.log('Status value being sent:', status);
+      console.log('Making status update PUT request to:', apiUrl, 'with body:', requestBody);
+      const res = await api.put(apiUrl, requestBody); 
       console.log('updateEventStatus - API Response:', res);
       return res.data;
     } catch (error) {
