@@ -1,0 +1,156 @@
+.my-events-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.my-events-container h1 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.create-event-link-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.create-event-button,
+.view-analytics-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  margin: 0 0.5rem; /* Add some space between buttons */
+}
+
+.create-event-button {
+  background-color: #28a745; /* Green color */
+  color: white;
+  border: none;
+}
+
+.create-event-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.view-analytics-button {
+  background-color: #007bff; /* Blue color */
+  color: white;
+  border: none;
+}
+
+.view-analytics-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.event-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.event-details {
+  flex-grow: 1;
+  margin-right: 1rem; /* Space between details and actions */
+}
+
+.event-details h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.event-details p {
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.event-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.event-actions a,
+.event-actions button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.event-actions .view-link {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.event-actions .view-link:hover {
+  background-color: #0056b3;
+}
+
+.event-actions .edit-link {
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+}
+
+.event-actions .edit-link:hover {
+  background-color: #e0a800;
+}
+
+.event-actions .delete-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.event-actions .delete-button:hover {
+  background-color: #c82333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .event-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .event-details {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+
+  .event-actions {
+    justify-content: stretch;
+    gap: 0.5rem;
+  }
+
+  .event-actions a,
+  .event-actions button {
+    flex-grow: 1; /* Make buttons take full width */
+    text-align: center;
+  }
+} 

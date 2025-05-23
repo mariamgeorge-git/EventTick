@@ -111,6 +111,12 @@ const Loginform = () => {  // keep the component name matching filename casing
         </button>
       </form>
       <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+        Don't have an account?{' '}
+        <Link to="/register" style={{ color: '#007bff', textDecoration: 'none' }}>
+          Register here
+        </Link>
+      </p>
+      <p style={{ textAlign: 'center', marginTop: '0.5rem' }}>
         Forgot your password?{' '}
         <Link to="/forget-password" style={{ color: '#007bff', textDecoration: 'none' }}>
           Reset it here

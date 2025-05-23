@@ -13,6 +13,12 @@ import UnauthorizedPage from './pages/UnauthorizedPage';
 import ProfilePage from './pages/ProfilePage';
 import EventDetailsPage from './pages/EventDetailsPage';
 import AdminUsersPage from './pages/AdminUsersPage';
+import CreateEventPage from './pages/CreateEventPage';
+import EditEventPage from './pages/EditEventPage';
+import MyEventsPage from './pages/MyEventsPage';
+import OrganizerEventAnalytics from './components/organizer/OrganizerEventAnalytics';
+import AdminEventsPage from './pages/AdminEventsPage';
+import RoleBasedRoute from './components/auth/RoleBasedRoute';
 
 function App() {
   return (
@@ -29,10 +35,39 @@ function App() {
               <Route path="/forget-password" element={<ForgetPasswordPage />} />
               <Route path="/reset-password" element={<Resetpasswordpage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
-              <Route path="/dashboard" element={<ProfilePage />} />
-              <Route path="/profile" element={<ProfilePage />} />
+              <Route
+                path="/dashboard"
+                element={<RoleBasedRoute element={<ProfilePage />} requiredRoles={['standard_user', 'user', 'event_organizer', 'admin']} />}
+              />
+              <Route
+                path="/profile"
+                element={<RoleBasedRoute element={<ProfilePage />} requiredRoles={['standard_user', 'user', 'event_organizer', 'admin']} />}
+              />
               <Route path="/events/:id" element={<EventDetailsPage />} />
-              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route
+                path="/create-event"
+                element={<RoleBasedRoute element={<CreateEventPage />} requiredRoles={['event_organizer']} />}
+              />
+              <Route
+                path="/edit-event/:id"
+                element={<RoleBasedRoute element={<EditEventPage />} requiredRoles={['event_organizer']} />}
+              />
+              <Route
+                path="/my-events"
+                element={<RoleBasedRoute element={<MyEventsPage />} requiredRoles={['event_organizer']} />}
+              />
+              <Route
+                path="/my-events/analytics"
+                element={<RoleBasedRoute element={<OrganizerEventAnalytics />} requiredRoles={['event_organizer']} />}
+              />
+              <Route
+                path="/admin/users"
+                element={<RoleBasedRoute element={<AdminUsersPage />} requiredRoles={['admin']} />}
+              />
+              <Route
+                path="/admin/events"
+                element={<RoleBasedRoute element={<AdminEventsPage />} requiredRoles={['admin']} />}
+              />
             </Routes>
           </div>
           <Footer />

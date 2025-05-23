@@ -90,10 +90,10 @@ const userController = {
           expires: expiresAt,
           httpOnly: true,
           secure: true,
-          sameSite: 'none'
+          sameSite: 'None'
         })
         .status(200)
-        .json({ message: 'Login successful', user });
+        .json({ message: 'Login successful', user, token: token });
     } catch (error) {
       console.error('Error logging in:', error);
       res.status(500).json({ message: 'Server error' });
