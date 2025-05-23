@@ -1,8 +1,3 @@
-const dotenv = require('dotenv');
-dotenv.config();
-
-console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
-console.log('MONGO_URI loaded:', !!process.env.MONGO_URI);
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
@@ -13,9 +8,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const userController = require('./Controllers/userController');
 
-// dotenv.config();  
-// console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
-// console.log('MONGO_URI loaded:', !!process.env.MONGO_URI);
+dotenv.config();  
 const app = express();
 
 // CORS configuration
