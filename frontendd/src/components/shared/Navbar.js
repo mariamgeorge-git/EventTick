@@ -1,22 +1,44 @@
-import React, { useContext } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 import './Navbar.css';
 import { AuthContext } from '../auth/AuthContext.js';
 
 const Navbar = () => {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Simple logout handler (adjust as needed)
+  // Log user object and role
+  console.log('Navbar user:', user);
+  console.log('Navbar user role:', user?.role);
+
+  // Simple logout handler
   const handleLogout = () => {
-    // Clear user state, tokens, etc.
-    setUser(null);
-    // Redirect to home or login page
+    logout();
     navigate('/login');
   };
 
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    // Update URL search parameter
+    if (query) {
+      setSearchParams({ search: query });
+    } else {
+      setSearchParams({}); // Remove search parameter if query is empty
+    }
+
+    // Optional: navigate to events page if not already there
+    // Remove this automatic navigation to avoid unintended redirects
+    // if (window.location.pathname !== '/' && window.location.pathname !== '/events') {
+    //    navigate('/');
+    // }
+  };
+
   return (
-    <nav className="navbar bg-gray-800 text-white p-4 flex justify-between">
+    <nav className="navbar bg-gray-800 text-white p-4 flex justify-between items-center">
       {/* <div className="logo font-bold text-xl">
         <NavLink to="/" className="hover:text-gray-300">
           Event Ticketing
@@ -30,8 +52,24 @@ const Navbar = () => {
             end
             className={({ isActive }) => (isActive ? 'underline' : '')}
           >
-            Home
+            Events
           </NavLink>
+        </li>
+
+        <li>
+          <input
+            type="text"
+            placeholder="Search Events..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            style={{
+              padding: '0.3rem 0.5rem',
+              borderRadius: '4px',
+              border: '1px solid #ccc',
+              fontSize: '0.9rem',
+              color: '#333'
+            }}
+          />
         </li>
 
         {!user && (
@@ -72,16 +110,11 @@ const Navbar = () => {
               </>
             )}
 
-            {user.role === 'Organizer' && (
+            {user.role === 'event_organizer' && (
               <>
                 <li>
-                  <NavLink to="/manage-events" className={({ isActive }) => (isActive ? 'underline' : '')}>
-                    Manage Events
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/create-event" className={({ isActive }) => (isActive ? 'underline' : '')}>
-                    Create Event
+                  <NavLink to="/my-events" className={({ isActive }) => (isActive ? 'underline' : '')}>
+                    My Events
                   </NavLink>
                 </li>
               </>
@@ -97,6 +130,21 @@ const Navbar = () => {
                 <li>
                   <NavLink to="/admin/users" className={({ isActive }) => (isActive ? 'underline' : '')}>
                     Manage Users
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/admin/events" className={({ isActive }) => (isActive ? 'underline' : '')}>
+                    Manage Events
+                  </NavLink>
+                </li>
+              </>
+            )}
+
+            {user.role === 'admin' && (
+              <>
+                <li>
+                  <NavLink to="/admin/events" className={({ isActive }) => (isActive ? 'underline' : '')}>
+                    Manage Events
                   </NavLink>
                 </li>
               </>

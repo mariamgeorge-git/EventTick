@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+.event-card {
+  cursor: pointer;      /* Shows pointer cursor on hover */
+  user-select: none;    /* Prevents text selection on click-drag */
+  /* Other visual styles you want, like border, padding, etc. */
+}
+
+/* Optional hover effect */
+.event-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.event-card:active {
+  transform: scale(0.98); /* Slightly shrink the card on click */
+}

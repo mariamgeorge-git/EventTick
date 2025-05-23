@@ -86,20 +86,15 @@ const userController = {
         { expiresIn: '3h' }
       );
 
-      // Send both cookie and token in response
       return res
         .cookie('token', token, {
           expires: expiresAt,
           httpOnly: true,
           secure: true,
-          sameSite: 'none'
+          sameSite: 'None'
         })
         .status(200)
-        .json({ 
-          message: 'Login successful', 
-          user,
-          token // Include token in response body
-        });
+        .json({ message: 'Login successful', user, token: token });
     } catch (error) {
       console.error('Error logging in:', error);
       res.status(500).json({ message: 'Server error' });
@@ -207,9 +202,8 @@ const userController = {
   updateUser: async (req, res) => {
     try {
       const updates = { ...req.body };
-      const userId = req.params.id || req.user._id; // Use URL param if available, otherwise use authenticated user's ID
+      const userId = req.params.id || req.user._id;  // Get ID from URL params or authenticated user
 
-      // Validate age if provided
       if (updates.age && (updates.age < 18 || updates.age > 100)) {
         return res.status(400).json({ message: 'Age must be between 18 and 100' });
       }
@@ -217,42 +211,27 @@ const userController = {
       if (updates.role && !['admin', 'standard_user', 'event_organizer'].includes(updates.role)) {
         return res.status(400).json({ message: 'Invalid role specified' });
       }
-
-      // Only admin can update roles
-      if (updates.role && req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Only admin can update user roles' });
-      }
-
-      // Hash password if it's being updated
+  
       if (updates.password) {
         updates.password = await bcrypt.hash(updates.password, 10);
       }
-
-      // If not admin and trying to update another user
-      if (req.user.role !== 'admin' && userId !== req.user._id.toString()) {
-        return res.status(403).json({ message: 'Not authorized to update other users' });
-      }
-
+  
       const user = await User.findByIdAndUpdate(
         userId,
         updates,
         { new: true, runValidators: true }
       );
 
-      // If no user is found
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-
-      // Send successful response
+  
       return res.status(200).json({ user, msg: 'User updated successfully' });
     } catch (error) {
-      // Handle validation error
       if (error.name === 'ValidationError') {
         return res.status(400).json({ message: error.message });
       }
-      // Handle any other errors
-      return res.status(500).json({ message: 'Error updating user', error: error.message });
+      return res.status(500).json({ message: error.message });
     }
   },
 
@@ -270,93 +249,61 @@ const userController = {
 
   getCurrentUser: async (req, res) => {
     try {
-      // req.user is set by the authenticateToken middleware
-      const user = await User.findById(req.user._id).select('-password');
+      const user = await User.findById(req.user._id);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
       return res.status(200).json(user);
     } catch (error) {
-      console.error('Get Current User Error:', error);
-      return res.status(500).json({ message: 'Error retrieving user profile' });
+      return res.status(500).json({ message: error.message });
     }
   },
 
   getUserBookings: async (req, res) => {
     try {
-      const bookings = await Booking.find({ user: req.user._id })
+      const userId = req.user._id;
+      const bookings = await Booking.find({ user: userId })
         .populate('event')
-        .sort({ bookingDate: -1 });
+        .sort({ createdAt: -1 });
       
       return res.status(200).json(bookings);
     } catch (error) {
-      console.error('Error getting user bookings:', error);
-      return res.status(500).json({ message: 'Error fetching bookings' });
+      return res.status(500).json({ message: error.message });
     }
   },
 
   getUserEvents: async (req, res) => {
     try {
-      const events = await Event.find({ organizer: req.user._id });
-      
-      return res.status(200).json({
-        success: true,
-        count: events.length,
-        data: events
-      });
+      const userId = req.user._id;
+      const events = await Event.find({ organizer: userId }).sort({ date: 1 });
+      return res.status(200).json(events);
     } catch (error) {
-      console.error('Error getting user events:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Error retrieving events',
-        error: error.message
-      });
+      return res.status(500).json({ message: error.message });
     }
   },
 
   getUserEventsAnalytics: async (req, res) => {
     try {
-      const events = await Event.find({ organizer: req.user._id });
-      const bookings = await Booking.find({ event: { $in: events.map(e => e._id) } });
-
-      const analytics = {
-        totalEvents: events.length,
-        totalRevenue: 0,
-        totalBookings: bookings.length,
-        eventsAnalytics: events.map(event => {
-          const eventBookings = bookings.filter(b => b.event.toString() === event._id.toString());
-          const revenue = eventBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
-          const bookedTickets = eventBookings.reduce((sum, booking) => sum + booking.numberOfTickets, 0);
-          
-          return {
-            eventId: event._id,
-            title: event.title,
-            status: event.status,
-            capacity: event.capacity,
-            ticketsSold: bookedTickets,
-            ticketsAvailable: event.ticketsAvailable,
-            occupancyRate: ((bookedTickets / event.capacity) * 100).toFixed(2) + '%',
-            revenue: revenue,
-            averageTicketPrice: event.price,
-            date: event.date
-          };
-        })
-      };
-
-      // Calculate total revenue
-      analytics.totalRevenue = analytics.eventsAnalytics.reduce((sum, event) => sum + event.revenue, 0);
-
-      return res.status(200).json({
-        success: true,
-        data: analytics
-      });
+      const userId = req.user._id;
+      const events = await Event.find({ organizer: userId });
+      
+      const analytics = await Promise.all(events.map(async (event) => {
+        const bookings = await Booking.find({ event: event._id });
+        const totalTicketsSold = bookings.reduce((sum, booking) => sum + booking.numberOfTickets, 0);
+        const revenue = totalTicketsSold * event.ticketPrice;
+        
+        return {
+          eventId: event._id,
+          eventName: event.name,
+          totalTickets: event.ticketsAvailable,
+          ticketsSold: totalTicketsSold,
+          revenue: revenue
+        };
+      }));
+      
+      return res.status(200).json(analytics);
     } catch (error) {
-      console.error('Error getting user events analytics:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Error retrieving events analytics',
-        error: error.message
-      });
+      return res.status(500).json({ message: error.message });
     }
   }
 };

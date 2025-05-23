@@ -14,10 +14,9 @@ router.get('/organizer/analytics', authenticateToken, eventController.getMyEvent
 
 router.get('/all', authenticateToken, authorizeAdmin, eventController.getEvents);
 
-
+router.put('/:id/status', authenticateToken, authorizeAdmin, eventController.updateEventStatus);
 router.get('/:id', eventController.getEventById);
 router.put('/:id', authenticateToken, authorizeAdminOrOrganizer, eventController.updateEvent);
 router.delete('/:id', authenticateToken, authorizeAdminOrOrganizer, eventController.deleteEvent);
-router.put('/:id/status', authenticateToken, authorizeAdmin, eventController.updateEventStatus);
 
 module.exports = router;
