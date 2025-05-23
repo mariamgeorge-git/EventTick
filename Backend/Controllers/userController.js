@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const { sendVerificationEmail } = require('../utils/emailService');
 require('dotenv').config();
 const secretKey = process.env.JWT_SECRET;
+console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
