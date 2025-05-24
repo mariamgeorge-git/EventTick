@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../auth/AuthContext';
 import { toast } from 'react-toastify';
 import { Link, useSearchParams } from 'react-router-dom';
+import './Events.css';
+import { FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -10,6 +12,8 @@ const Events = () => {
   const { fetchEvents } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
+  const [filterDate, setFilterDate] = useState('');
+  const [filterLocation, setFilterLocation] = useState('');
 
   useEffect(() => {
     const getEvents = async () => {
@@ -29,23 +33,30 @@ const Events = () => {
 
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
-    const filtered = events.filter(event =>
-      event.title.toLowerCase().includes(lowerCaseQuery) ||
-      event.location.toLowerCase().includes(lowerCaseQuery) ||
-      (event.description && event.description.toLowerCase().includes(lowerCaseQuery))
-    );
+    const lowerCaseLocationFilter = filterLocation.toLowerCase();
+
+    const filtered = events.filter(event => {
+      const eventDate = new Date(event.date);
+      const filterDateObj = filterDate ? new Date(filterDate) : null;
+
+      const matchesSearch = 
+        event.title.toLowerCase().includes(lowerCaseQuery) ||
+        event.location.toLowerCase().includes(lowerCaseQuery) ||
+        (event.description && event.description.toLowerCase().includes(lowerCaseQuery));
+
+      const matchesDate = filterDate ? eventDate.toDateString() === filterDateObj.toDateString() : true;
+
+      const matchesLocation = filterLocation ? event.location.toLowerCase().includes(lowerCaseLocationFilter) : true;
+
+      return matchesSearch && matchesDate && matchesLocation;
+    });
     setFilteredEvents(filtered);
-  }, [events, searchQuery]);
+  }, [events, searchQuery, filterDate, filterLocation]);
 
   if (loading) {
     return (
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '100vh',
-        }}
+        className="loading-container"
       >
         Loading events...
       </div>
@@ -53,37 +64,49 @@ const Events = () => {
   }
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Events</h1>
+    <div className="events-container">
+      <h1 className="events-title">Events</h1>
+
+      {/* Filter Controls */}
+      <div className="filter-controls">
+        <div className="filter-input-group">
+          <label htmlFor="date-filter">Date:</label>
+          <div className="input-with-icon">
+            <FaCalendarAlt className="filter-icon" />
+            <input 
+              id="date-filter"
+              type="date" 
+              value={filterDate} 
+              onChange={(e) => setFilterDate(e.target.value)} 
+            />
+          </div>
+        </div>
+        <div className="filter-input-group">
+          <label htmlFor="location-filter">Location:</label>
+          <div className="input-with-icon">
+            <FaMapMarkerAlt className="filter-icon" />
+            <input 
+              id="location-filter"
+              type="text" 
+              placeholder="Enter Location" 
+              value={filterLocation} 
+              onChange={(e) => setFilterLocation(e.target.value)} 
+            />
+          </div>
+        </div>
+      </div>
+
       <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-          gap: '2rem',
-          maxWidth: '1000px',
-          margin: '0 auto',
-        }}
+        className="events-grid"
       >
         {(filteredEvents || []).map((evt) => (
   <Link
     to={`/events/${evt._id}`}
     key={evt._id}
-    style={{ textDecoration: 'none', color: 'inherit' }}
+    className="event-link"
   >
     <div
-      style={{
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '0.75rem',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        backgroundColor: 'white',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.25rem',
-        height: '100%',
-        fontSize: '0.9rem',
-      }}
+      className="event-card"
     >
       <h2 style={{ margin: 0, fontSize: '1.1rem' }}>{evt.title}</h2>
       <p>
@@ -95,6 +118,9 @@ const Events = () => {
       <p>
         <strong>Price:</strong> {evt.Price !== undefined ? `$${evt.Price.toFixed(2)}` : 'N/A'}
       </p>
+      <Link to={`/events/${evt._id}`} className="view-details-button">
+        View Details
+      </Link>
     </div>
   </Link>
 ))}

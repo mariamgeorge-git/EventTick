@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import './UserBookings.css';
+import BookingDetails from './BookingDetails';
 
 const UserBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
 
   // Fetch bookings on component mount
   useEffect(() => {
@@ -16,7 +18,7 @@ const UserBookings = () => {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/bookings/user');
+      const response = await api.get('/users/bookings');
       setBookings(response.data);
       setError('');
     } catch (err) {
@@ -48,7 +50,7 @@ const UserBookings = () => {
       }
 
       // Send cancel request to backend
-      await api.put(`/bookings/${bookingId}/cancel`);
+      await api.delete(`/bookings/${bookingId}`);
       
       // Refresh bookings list
       fetchBookings();
@@ -58,6 +60,16 @@ const UserBookings = () => {
       setError(err.response?.data?.message || 'Failed to cancel booking. Please try again.');
       console.error('Error cancelling booking:', err);
     }
+  };
+
+  // Function to open the booking details modal
+  const handleViewDetails = (bookingId) => {
+    setSelectedBookingId(bookingId);
+  };
+
+  // Function to close the booking details modal
+  const handleCloseModal = () => {
+    setSelectedBookingId(null);
   };
 
   // Function to format date
@@ -75,7 +87,7 @@ const UserBookings = () => {
 
   return (
     <div className="user-bookings">
-      <h2>My Bookings</h2>
+      <h1>My Bookings</h1>
       {error && <div className="error-message">{error}</div>}
       
       {bookings.length === 0 ? (
@@ -83,20 +95,23 @@ const UserBookings = () => {
       ) : (
         <div className="bookings-list">
           {bookings.map((booking) => (
-            <div key={booking._id} className={`booking-card ${booking.status}`}>
+            <div 
+              key={booking._id} 
+              className={`booking-card ${booking.status}`}
+              onClick={() => handleViewDetails(booking._id)}
+            >
               <h3>{booking.event.title}</h3>
               <div className="booking-details">
-                <p><strong>Date:</strong> {formatDate(booking.event.date)}</p>
-                <p><strong>Location:</strong> {booking.event.location}</p>
                 <p><strong>Tickets:</strong> {booking.numberOfTickets}</p>
-                <p><strong>Total Price:</strong> ${booking.totalPrice.toFixed(2)}</p>
-                <p><strong>Status:</strong> {booking.status}</p>
-                <p><strong>Booked on:</strong> {formatDate(booking.createdAt)}</p>
+                <p><strong>Total Price:</strong> ${booking.totalPrice?.toFixed(2)}</p>
               </div>
               
               {booking.status !== 'cancelled' && new Date(booking.event.date) > new Date() && (
                 <button 
-                  onClick={() => handleCancelBooking(booking._id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCancelBooking(booking._id);
+                  }}
                   className="cancel-button"
                 >
                   Cancel Booking
@@ -104,6 +119,16 @@ const UserBookings = () => {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Booking Details Modal */}
+      {selectedBookingId && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="close-button" onClick={handleCloseModal}>×</button>
+            <BookingDetails bookingId={selectedBookingId} />
+          </div>
         </div>
       )}
     </div>

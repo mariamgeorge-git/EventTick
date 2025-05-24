@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import './AuthForms.css'; // Import the new CSS file
 
 const Registerform = () => {
   const navigate = useNavigate();
@@ -47,147 +48,89 @@ const Registerform = () => {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5'
-    }}>
-      <form onSubmit={handleSubmit} style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#333' }}>Register</h2>
+    <div className="auth-container"> {/* Use the new container class */}
+      {/* Wrap form and links in a new div for vertical stacking and centering */}
+      <div className="auth-content-wrapper"> {/* Use the new wrapper class */}
+        <form onSubmit={handleSubmit} className="auth-form"> {/* Use the new form class */}
+          <h2 className="auth-title">Register</h2> {/* Use the new title class */}
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Name</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
+          <div className="form-group"> {/* Use the new form group class */}
+            <label>Name</label> {/* Label styles handled by CSS */}
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              // Inline styles removed, replaced by CSS classes
+            />
+          </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
+          <div className="form-group"> {/* Use the new form group class */}
+            <label>Email</label> {/* Label styles handled by CSS */}
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              // Inline styles removed, replaced by CSS classes
+            />
+          </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
+          <div className="form-group"> {/* Use the new form group class */}
+            <label>Password</label> {/* Label styles handled by CSS */}
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              // Inline styles removed, replaced by CSS classes
+            />
+          </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
+          <div className="form-group"> {/* Use the new form group class */}
+            <label>Confirm Password</label> {/* Label styles handled by CSS */}
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              // Inline styles removed, replaced by CSS classes
+            />
+          </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Age</label>
-          <input
-            type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            required
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
+          <div className="form-group"> {/* Use the new form group class */}
+            <label>Age</label> {/* Label styles handled by CSS */}
+            <input
+              type="number"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              required
+              // Inline styles removed, replaced by CSS classes
+            />
+          </div>
 
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Role</label>
-          <select name="role" value={formData.role} onChange={handleChange}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          >
-            <option value="standard_user">User</option>
-            <option value="event_organizer">Organizer</option>
-          </select>
-        </div>
+          <div className="form-group"> {/* Use the new form group class */}
+            <label>Role</label> {/* Label styles handled by CSS */}
+            <select name="role" value={formData.role} onChange={handleChange}
+              // Inline styles removed, replaced by CSS classes
+            >
+              <option value="standard_user">User</option>
+              <option value="event_organizer">Organizer</option>
+            </select>
+          </div>
 
-        {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+          {error && <p className="error-message">{error}</p>}{/* Use the new error message class */}
 
-        <button type="submit"
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          Register
-        </button>
-      </form>
+          <button type="submit" className="auth-button"> {/* Use the new button class */}
+            Register
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

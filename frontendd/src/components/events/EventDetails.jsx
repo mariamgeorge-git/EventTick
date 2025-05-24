@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
 import BookTicketForm from './BookTicketForm';
-import './EventDetails.css'; // Import the new CSS file
+import './EventDetails.css';
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -120,7 +120,13 @@ const EventDetails = () => {
         </div>
 
         {user && user.role === 'standard_user' ? (
-          <BookTicketForm event={event} onBookingSuccess={() => alert('Thanks for booking!')} />
+          <BookTicketForm 
+            event={event} 
+            onBookingSuccess={() => {
+              // The success message is now handled in BookTicketForm
+              // This callback can be used for additional actions if needed
+            }} 
+          />
         ) : (
           <div className="event-booking-section">
             <p className="text-center">

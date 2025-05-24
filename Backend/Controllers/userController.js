@@ -294,7 +294,7 @@ const userController = {
         
         return {
           eventId: event._id,
-          eventName: event.name,
+          eventName: event.title,
           totalTickets: event.ticketsAvailable,
           ticketsSold: totalTicketsSold,
           revenue: revenue
