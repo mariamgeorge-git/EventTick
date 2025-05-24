@@ -2,6 +2,8 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  text-align: center;
+  
 }
 
 .error-message {
@@ -26,6 +28,7 @@
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
+  position: relative;
 }
 
 .booking-card:hover {
@@ -80,4 +83,58 @@
   border: 2px solid #dc3545;
   padding: 5px 10px;
   pointer-events: none;
+  z-index: 1;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #424242;
+  padding: 30px;
+  border-radius: 8px;
+  position: relative;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+}
+
+.modal-content h3 {
+  color: #ffffff;
+}
+
+.modal-content p {
+  color: #e0e0e0;
+}
+
+.modal-content p strong {
+  color: #ffffff;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5em;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.close-button:hover {
+  color: #bdbdbd;
 } 

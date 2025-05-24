@@ -95,13 +95,8 @@ const Navbar = () => {
               </NavLink>
             </li>
 
-            {user.role === 'User' && (
+            {user.role === 'standard_user' && (
               <>
-                <li>
-                  <NavLink to="/events" className={({ isActive }) => (isActive ? 'underline' : '')}>
-                    Events
-                  </NavLink>
-                </li>
                 <li>
                   <NavLink to="/bookings" className={({ isActive }) => (isActive ? 'underline' : '')}>
                     My Bookings
@@ -120,28 +115,15 @@ const Navbar = () => {
               </>
             )}
 
-            {user.role === 'Admin' && (
-              <>
-                <li>
-                  <NavLink to="/admin/dashboard" className={({ isActive }) => (isActive ? 'underline' : '')}>
-                    Admin Dashboard
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/admin/users" className={({ isActive }) => (isActive ? 'underline' : '')}>
-                    Manage Users
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/admin/events" className={({ isActive }) => (isActive ? 'underline' : '')}>
-                    Manage Events
-                  </NavLink>
-                </li>
-              </>
-            )}
-
+            {/* Admin links */}
             {user.role === 'admin' && (
               <>
+                {/* Removed Admin Dashboard link */}
+                <li>
+                  <NavLink to="/admin/users" className={({ isActive }) => (isActive ? 'underline' : '')}>
+                    User Management
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink to="/admin/events" className={({ isActive }) => (isActive ? 'underline' : '')}>
                     Manage Events

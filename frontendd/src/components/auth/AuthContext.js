@@ -168,6 +168,7 @@ export const AuthProvider = ({ children }) => {
   const fetchMyEventAnalytics = async () => {
     try {
       const res = await api.get('/users/events/analytics');
+      console.log('Raw analytics API response data:', res.data);
       return res.data;
     } catch (error) {
       console.error('Error fetching event analytics:', error);

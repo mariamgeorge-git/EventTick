@@ -5,12 +5,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  height: 100vh; /* Make body take full viewport height */
-  overflow: hidden; /* Prevent body scroll */
 }
 
 #root {
-  height: 100vh; /* Make root div take full viewport height */
 }
 
 code {

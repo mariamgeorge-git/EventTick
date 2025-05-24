@@ -1,0 +1,184 @@
+/* Book Ticket Form Styling */
+.ticket-booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-with-icon:focus-within {
+  border-color: #89CFF0;
+  box-shadow: 0 0 0 2px rgba(137, 207, 240, 0.2);
+}
+
+.filter-icon {
+  color: #666;
+  margin: 0 10px;
+  font-size: 1rem;
+}
+
+.ticket-input {
+  width: 100%;
+  padding: 10px 15px 10px 5px;
+  border: none;
+  background-color: transparent;
+  font-size: 1rem;
+  color: #333;
+  text-align: center;
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield; /* Standard */
+}
+
+/* Hide number input spinners */
+.ticket-input::-webkit-outer-spin-button,
+.ticket-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Add custom increment/decrement buttons */
+.input-with-buttons {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.quantity-button {
+  background: #f8f9fa;
+  border: none;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #333;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.quantity-button:not(:disabled):hover {
+  background-color: #e9ecef;
+}
+
+.quantity-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(137, 207, 240, 0.3);
+}
+
+.quantity-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantity-button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.quantity-button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.ticket-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #999;
+}
+
+/* Add some spacing between the input and buttons */
+.ticket-input {
+  margin: 0 2px;
+}
+
+.price-summary {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.total-price {
+  font-size: 1.25rem;
+  color: #333;
+  margin: 0;
+}
+
+.total-price span {
+  font-weight: bold;
+  color: #2c5282;
+}
+
+.book-button {
+  background-color: #89CFF0;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.book-button:hover:not(:disabled) {
+  background-color: #64B5F6;
+}
+
+.book-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.error-message {
+  color: #e53e3e;
+  background-color: #fff5f5;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  border-left: 3px solid #e53e3e;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .ticket-booking-form {
+    padding: 1.25rem;
+  }
+  
+  .book-button {
+    padding: 10px 20px;
+  }
+}

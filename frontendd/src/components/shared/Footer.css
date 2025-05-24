@@ -1,1 +1,89 @@
- 
+/* Removed html, body styles */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Ensure html and body take full height */
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* #root does not need a width or height property here */
+}
+
+/* Ensure the main content area takes up available space */
+main {
+  flex: 1;
+  /* Remove all other properties from main */
+}
+
+footer {
+  background-color: #f8f9fa;
+  padding: 1.5rem 0;
+  margin-top: auto; /* Push footer to bottom */
+  width: 100%;
+  border-top: 1px solid #e9ecef;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-text {
+  margin: 0; /* Remove default paragraph margin */
+  text-align: center; /* Center text */
+}
+
+.footer-contact {
+  margin: 0;
+  text-align: center;
+  /* If you add social icons later, you might make this a flex container */
+}
+
+/* Responsive adjustment for larger screens */
+@media (min-width: 768px) {
+  .footer-container {
+    flex-direction: row; /* Arrange content in a row on larger screens */
+    justify-content: space-between; /* Space out elements */
+    align-items: center; /* Vertically align items in the row */
+  }
+
+  .footer-text,
+  .footer-contact {
+    text-align: left; /* Align text to the left in row layout */
+    flex-basis: 50%; /* Give both sides equal basis */
+  }
+
+  .footer-contact {
+      text-align: right; /* Align contact to the right */
+  }
+}
+
+/* Add styles for the main content wrapper */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+}
+
+/* Ensure the main content area takes up available space and is scrollable */
+main {
+  flex: 1;
+  width: 100%;
+  overflow-y: auto; /* Add scrollbar if content overflows vertically */
+  /* Ensure no fixed height that prevents scrolling */
+  height: auto; 
+  min-height: 0; /* Ensure it can shrink if needed, important for flex */
+} 

@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../auth/AuthContext.js';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-// import './LoginForm.css'; // optional CSS
+import './AuthForms.css'; // Import the new CSS file
 
 const Loginform = () => {  // keep the component name matching filename casing
   const { login } = useContext(AuthContext);
@@ -48,80 +48,51 @@ const Loginform = () => {  // keep the component name matching filename casing
   };
 
   return (
-    <div >
-      <form onSubmit={handleSubmit} style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#333' }}>Login</h2>
-        <div style={{ marginBottom: '1rem' }}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+    <div className="auth-container">
+      <div className="auth-content-wrapper">
+        <form onSubmit={handleSubmit} className="auth-form">
+          <h2 className="auth-title">Login</h2>
+          <div className="form-group">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <button
+            type="submit"
             disabled={loading}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
-        <div style={{ marginBottom: '1.5rem' }}>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            backgroundColor: loading ? '#ccc' : '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '1rem',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {loading ? 'Logging in...' : 'Log In'}
-        </button>
-      </form>
-      <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-        Don't have an account?{' '}
-        <Link to="/register" style={{ color: '#007bff', textDecoration: 'none' }}>
-          Register here
-        </Link>
-      </p>
-      <p style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-        Forgot your password?{' '}
-        <Link to="/forget-password" style={{ color: '#007bff', textDecoration: 'none' }}>
-          Reset it here
-        </Link>
-      </p>
+            className="auth-button"
+          >
+            {loading ? 'Logging in...' : 'Log In'}
+          </button>
+        </form>
+        <p className="auth-link">
+          Don't have an account?{' '}
+          <Link to="/register">
+            Register here
+          </Link>
+        </p>
+        <p className="auth-link">
+          Forgot your password?{' '}
+          <Link to="/forget-password">
+            Reset it here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

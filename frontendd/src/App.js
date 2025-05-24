@@ -19,15 +19,16 @@ import MyEventsPage from './pages/MyEventsPage';
 import OrganizerEventAnalytics from './components/organizer/OrganizerEventAnalytics';
 import AdminEventsPage from './pages/AdminEventsPage';
 import RoleBasedRoute from './components/auth/RoleBasedRoute';
+import UserBookingsPage from './pages/UserBookingsPage';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <div id="root">
           <Navbar />
 
-          <div style={{ flexGrow: 1, overflowY: 'auto' }}>
+          <main>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
@@ -68,8 +69,12 @@ function App() {
                 path="/admin/events"
                 element={<RoleBasedRoute element={<AdminEventsPage />} requiredRoles={['admin']} />}
               />
+              <Route
+                path="/bookings"
+                element={<RoleBasedRoute element={<UserBookingsPage />} requiredRoles={['standard_user']} />}
+              />
             </Routes>
-          </div>
+          </main>
           <Footer />
         </div>
       </Router>

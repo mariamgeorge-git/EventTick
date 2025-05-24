@@ -15,6 +15,7 @@ const OrganizerEventAnalytics = () => {
         setLoading(true);
         const data = await fetchMyEventAnalytics();
         setAnalyticsData(data);
+        console.log('Fetched analytics data array:', data);
       } catch (err) {
         setError(err.message || 'Failed to load event analytics');
         toast.error('Failed to load event analytics.');
@@ -42,27 +43,37 @@ const OrganizerEventAnalytics = () => {
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Event Analytics</h1>
       
-      {/* Display Bar Chart */}
-      <div style={{ width: '100%', height: 300 }}>
-        <ResponsiveContainer>
-          <BarChart
-            data={analyticsData}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="eventName" />{/* Assuming backend returns eventName */}
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="ticketsSold" fill="#8884d8" name="Tickets Sold" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {/* Display Bar Chart for each event */}
+      {analyticsData.map(eventAnalytics => {
+        console.log('Data for individual chart:', eventAnalytics);
+        return (
+          <div key={eventAnalytics.eventId} style={{ marginBottom: '3rem' }}>
+            <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>{eventAnalytics.eventName}</h2>
+            <div style={{ width: '100%', height: 300 }}>
+              <ResponsiveContainer>
+                <BarChart
+                  data={[{ name: eventAnalytics.eventName, ticketsSold: eventAnalytics.ticketsSold, revenue: eventAnalytics.revenue }]}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="ticketsSold" fill="#8884d8" name="Tickets Sold" />
+                  {/* Add more bars for other analytics data if available in backend response */}
+                  {/* Example: <Bar dataKey="revenue" fill="#82ca9d" name="Revenue" /> */}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        );
+      })}
 
       {/* Optional: Display raw data as well */}
       {/* <div>

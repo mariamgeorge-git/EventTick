@@ -1,0 +1,26 @@
+.user-action-button {
+  color: white; /* White text color */
+  border: none; /* Remove border */
+  padding: 6px 12px; /* Adjusted padding to match example buttons */
+  border-radius: 4px; /* Standard border radius */
+  cursor: pointer;
+  font-size: 0.8em; /* Slightly smaller font size */
+  transition: background-color 0.2s ease; /* Smooth hover effect */
+}
+
+.user-action-button.update-role {
+  background-color: #89CFF0; /* Baby blue - similar to approve/view details */
+}
+
+.user-action-button.update-role:hover {
+    background-color: #64B5F6; /* Darker baby blue on hover */
+}
+
+.user-action-button.delete {
+  background-color: #f44336; /* Red - matching decline */
+  color: white; /* Ensure text color is white for delete button */
+}
+
+.user-action-button.delete:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+} 

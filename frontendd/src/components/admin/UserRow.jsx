@@ -1,5 +1,6 @@
 import React from 'react';
 import { TableCell, TableRow, Button } from '@mui/material';
+import './UserRow.css'; // Import the CSS file
 
 const UserRow = ({ user, onUpdateRole, onDelete }) => {
   return (
@@ -14,19 +15,19 @@ const UserRow = ({ user, onUpdateRole, onDelete }) => {
         {/* Action Buttons */}
         {/* These buttons will trigger functions passed down from the parent (AdminUsersPage) */}
         <Button 
-          variant="outlined" 
-          color="primary" 
+          className="user-action-button update-role" // Apply CSS classes
           size="small" 
           onClick={() => onUpdateRole(user._id, user.role)}
           style={{ marginRight: '8px' }}
+          // Removed variant and color props
         >
           Update Role
         </Button>
         <Button 
-          variant="outlined" 
-          color="error" 
+          className="user-action-button delete" // Apply CSS classes
           size="small" 
           onClick={() => onDelete(user._id)}
+          // Removed variant and color props
         >
           Delete
         </Button>

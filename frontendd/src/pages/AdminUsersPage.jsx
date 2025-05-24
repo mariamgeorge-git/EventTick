@@ -12,25 +12,44 @@ import {
   Box,
   CircularProgress,
   Select,
-  MenuItem
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import UserRow from '../components/admin/UserRow';
 import { toast } from 'react-toastify';
 import ConfirmationDialog from '../components/admin/ConfirmationDialog';
 import UpdateUserRoleModal from '../components/admin/UpdateUserRoleModal';
+import './AdminUsersPage.css';
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [userToDeleteId, setUserToDeleteId] = useState(null);
   const [openUpdateRoleModal, setOpenUpdateRoleModal] = useState(false);
   const [userToUpdate, setUserToUpdate] = useState(null);
+  const [roleFilter, setRoleFilter] = useState('All'); // State for role filter
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    // Apply filter whenever users or roleFilter changes
+    const applyFilter = () => {
+      if (roleFilter === 'All') {
+        setFilteredUsers(users);
+      } else {
+        setFilteredUsers(users.filter(user => user.role === roleFilter.toLowerCase()));
+      }
+    };
+
+    applyFilter();
+  }, [users, roleFilter]); // Depend on users and roleFilter
+
 
   const fetchUsers = async () => {
     try {
@@ -41,6 +60,8 @@ const AdminUsersPage = () => {
         }
       });
       setUsers(response.data);
+      // Initial filter applied in the useEffect above
+      // setFilteredUsers(response.data);
       setLoading(false);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch users');
@@ -71,6 +92,7 @@ const AdminUsersPage = () => {
         }
       );
 
+      // Update users state with the modified user
       setUsers(users.map(user => user._id === userId ? response.data.user : user));
       toast.success('User role updated successfully!');
     } catch (err) {
@@ -102,6 +124,7 @@ const AdminUsersPage = () => {
         }
       });
 
+      // Update users state by filtering out the deleted user
       setUsers(users.filter(user => user._id !== userToDeleteId));
       toast.success('User deleted successfully!');
     } catch (err) {
@@ -129,10 +152,32 @@ const AdminUsersPage = () => {
   }
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        User Management
-      </Typography>
+    <Box className="admin-users-container">
+      <div className="header-container">
+        <Typography variant="h1" gutterBottom className="admin-users-title">
+          User Management
+        </Typography>
+      </div>
+
+      {/* Role Filter Dropdown */}
+      <div className="filter-container">
+        <FormControl size="small">
+          <InputLabel id="role-filter-label">Filter by Role</InputLabel>
+          <Select
+            labelId="role-filter-label"
+            id="role-filter"
+            value={roleFilter}
+            label="Filter by Role"
+            onChange={(e) => setRoleFilter(e.target.value)}
+          >
+            <MenuItem value="All">All Roles</MenuItem>
+            <MenuItem value="Standard_user">Standard User</MenuItem>
+            <MenuItem value="Event_organizer">Event Organizer</MenuItem>
+            <MenuItem value="Admin">Admin</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -146,7 +191,7 @@ const AdminUsersPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
+            {(filteredUsers || []).map((user) => (
               <UserRow
                 key={user._id}
                 user={user}
