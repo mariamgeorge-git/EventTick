@@ -24,10 +24,10 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'build')));
-// For any route not handled by the API, serve React's index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
+
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/events', eventRoutes); 
 app.use('/api/v1/bookings', bookingRoutes);
