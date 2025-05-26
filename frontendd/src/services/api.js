@@ -1,16 +1,7 @@
 import axios from 'axios';
 
-// Determine the base URL based on environment
-const getBaseURL = () => {
-  if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
-  }
-  // Fallback to localhost for development
-  return 'http://localhost:3001/api/v1';
-};
-
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: 'http://localhost:3001/api/v1',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
