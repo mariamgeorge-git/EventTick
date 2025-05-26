@@ -26,6 +26,11 @@ import UserBookingsPage from './pages/UserBookingsPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// If you have MFA/ProtectedRoute components, import them here
+// import MfaVerification from './components/MfaVerification';
+// import MfaSetup from './components/MfaSetup';
+// import ProtectedRoute from './components/ProtectedRoute';
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -35,7 +40,7 @@ function App() {
           <Router>
             <div id="root" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
               <Navbar />
-              <main style={{ flex: 1, padding: '2rem 0', backgroundColor: theme.palette.background.default }}>
+              <main style={{ flex: 1 }}>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
@@ -80,6 +85,25 @@ function App() {
                     path="/bookings"
                     element={<RoleBasedRoute element={<UserBookingsPage />} requiredRoles={['standard_user']} />}
                   />
+                  {/* Uncomment and adjust these if you have MFA/ProtectedRoute components */}
+                  {/*
+                  <Route 
+                    path="/mfa-verification" 
+                    element={
+                      <ProtectedRoute requireMfa={false}>
+                        <MfaVerification />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/mfa-setup" 
+                    element={
+                      <ProtectedRoute>
+                        <MfaSetup />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  */}
                 </Routes>
               </main>
               <Footer />
