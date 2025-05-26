@@ -31,27 +31,33 @@ const userController = {
         return res.status(400).json({ message: 'Invalid role specified' });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-
       const newUser = new User({
         name,
         email,
-        password: hashedPassword,
+        password,
         role: role || 'standard_user',
         age,
         isActive: true
       });
 
       try {
-        await newUser.save();
-        console.log("User saved:", newUser);
+        const savedUser = await newUser.save();
+        console.log("User saved successfully:", {
+          id: savedUser._id,
+          email: savedUser.email,
+          isActive: savedUser.isActive
+        });
+        res.status(201).json({ message: 'User registered successfully' });
       } catch (error) {
         console.error("Error saving user:", error);
+        throw error;  // Propagate the error to the outer catch block
       }
-
-      res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
-      console.error('Error registering user:', error);
+      console.error('Error registering user:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       if (error.name === 'ValidationError') {
         return res.status(400).json({ message: error.message });
       }
@@ -180,23 +186,42 @@ const userController = {
         return res.status(400).json({ message: 'Please enter email and password' });
       }
 
-      // Find user with all MFA fields
-      const user = await User.findOne({ email, isActive: true })
+      // Find user with all required fields
+      console.log('Looking up user with email:', email);
+      const user = await User.findOne({ email })
         .select('+password +mfaSecret +mfaCode +mfaCodeExpires');
 
-      console.log('Found user:', {
+      console.log('User lookup result:', {
+        found: !!user,
         id: user?._id,
-        mfaEnabled: user?.mfaEnabled,
-        hasMfaSecret: !!user?.mfaSecret
+        email: user?.email,
+        isActive: user?.isActive,
+        hasPassword: !!user?.password
       });
 
       if (!user) {
-        return res.status(404).json({ message: 'Email not found or account is inactive' });
+        return res.status(404).json({ message: 'Email not found' });
       }
 
-      const passwordMatch = await user.comparePassword(password);
-      if (!passwordMatch) {
-        return res.status(405).json({ message: 'Incorrect password' });
+      if (!user.isActive) {
+        return res.status(403).json({ message: 'Account is inactive' });
+      }
+
+      if (!user.password) {
+        console.error('Password field not found in user document');
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      try {
+        const passwordMatch = await user.comparePassword(password);
+        console.log('Password match result:', passwordMatch);
+        
+        if (!passwordMatch) {
+          return res.status(401).json({ message: 'Incorrect password' });
+        }
+      } catch (error) {
+        console.error('Error comparing passwords:', error);
+        return res.status(500).json({ message: 'Error verifying password' });
       }
 
       // Check if MFA is enabled
