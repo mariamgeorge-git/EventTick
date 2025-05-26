@@ -5,10 +5,12 @@ import {
 } from '@mui/material';
 import { AuthContext } from '../components/auth/AuthContext';
 import UpdateProfileForm from '../components/public/UpdateProfileForm';
+import { Button, TextField } from '@mui/material';
+import { toast } from 'react-toastify';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
-  const { user } = useContext(AuthContext);
+const { user, setupMfa, verifyMfaSetup } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
