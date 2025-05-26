@@ -20,6 +20,9 @@ import OrganizerEventAnalytics from './components/organizer/OrganizerEventAnalyt
 import AdminEventsPage from './pages/AdminEventsPage';
 import RoleBasedRoute from './components/auth/RoleBasedRoute';
 import UserBookingsPage from './pages/UserBookingsPage';
+import MfaVerification from './components/MfaVerification';
+import MfaSetup from './components/MfaSetup';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -38,7 +41,11 @@ function App() {
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
               <Route
                 path="/dashboard"
-                element={<RoleBasedRoute element={<ProfilePage />} requiredRoles={['standard_user', 'user', 'event_organizer', 'admin']} />}
+                element={
+                  <ProtectedRoute>
+                    <RoleBasedRoute element={<ProfilePage />} requiredRoles={['standard_user', 'user', 'event_organizer', 'admin']} />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/profile"
@@ -72,6 +79,22 @@ function App() {
               <Route
                 path="/bookings"
                 element={<RoleBasedRoute element={<UserBookingsPage />} requiredRoles={['standard_user']} />}
+              />
+              <Route 
+                path="/mfa-verification" 
+                element={
+                  <ProtectedRoute requireMfa={false}>
+                    <MfaVerification />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/mfa-setup" 
+                element={
+                  <ProtectedRoute>
+                    <MfaSetup />
+                  </ProtectedRoute>
+                } 
               />
             </Routes>
           </main>

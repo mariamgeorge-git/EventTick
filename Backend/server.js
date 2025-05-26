@@ -8,7 +8,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const userController = require('./Controllers/userController');
 
-dotenv.config();  
+dotenv.config();
 const app = express();
 
 // CORS configuration
@@ -22,6 +22,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+// API routes
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/events', eventRoutes); 
 app.use('/api/v1/bookings', bookingRoutes);

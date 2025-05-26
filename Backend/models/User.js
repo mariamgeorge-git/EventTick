@@ -39,6 +39,32 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  // MFA fields
+  mfaEnabled: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  mfaSecret: {
+    type: String,
+    select: false
+  },
+  mfaCode: {
+    type: String,
+    default: null
+  },
+  mfaCodeExpires: {
+    type: Date,
+    default: null
+  },
+  mfaSetupCode: {
+    type: String,
+    default: null
+  },
+  mfaSetupCodeExpires: {
+    type: Date,
+    default: null
+  },
   verificationCode: {
     code: String,
     expiresAt: Date
@@ -58,8 +84,12 @@ const userSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-userSchema.pre("save", function (next) {
+// Add index for MFA fields
+userSchema.index({ mfaCode: 1, mfaCodeExpires: 1 });
+
+userSchema.pre("save", async function (next) {
   if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
   }
   this.updatedAt = Date.now();
   next();
@@ -69,11 +99,36 @@ userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   delete obj.verificationCode;
+  delete obj.mfaCode;
+  delete obj.mfaCodeExpires;
+  delete obj.mfaSecret;
   return obj;
 };
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Add method to validate MFA code
+userSchema.methods.validateMfaCode = function (code) {
+  console.log('Validating MFA code:', {
+    providedCode: code,
+    storedCode: this.mfaCode,
+    expires: this.mfaCodeExpires,
+    now: new Date()
+  });
+  
+  if (!this.mfaCode || !this.mfaCodeExpires) {
+    console.log('No MFA code or expiry found');
+    return false;
+  }
+
+  if (new Date() > this.mfaCodeExpires) {
+    console.log('MFA code has expired');
+    return false;
+  }
+
+  return this.mfaCode === code;
 };
 
 module.exports = mongoose.model('User', userSchema);
