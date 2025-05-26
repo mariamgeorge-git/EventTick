@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
+import {
+  Container,
+  Alert,
+} from '@mui/material';
 import { AuthContext } from '../components/auth/AuthContext';
 import UpdateProfileForm from '../components/public/UpdateProfileForm';
 import './ProfilePage.css';
-import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
@@ -30,10 +32,6 @@ const ProfilePage = () => {
     }
   }, [user]);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
   const handleUpdateSuccess = (updatedData) => {
     setUserData(updatedData);
     setIsEditing(false);
@@ -49,9 +47,11 @@ const ProfilePage = () => {
 
   if (!userData) {
     return (
-      <div className="profile-container">
-        <div className="profile-loading">Loading...</div>
-      </div>
+      <Container>
+        <Alert severity="error" sx={{ mt: 4 }}>
+          Not logged in. Please log in to view your profile.
+        </Alert>
+      </Container>
     );
   }
 
@@ -83,7 +83,7 @@ const ProfilePage = () => {
           </div>
           <button 
             className="edit-button"
-            onClick={handleEditClick}
+            onClick={() => setIsEditing(true)}
           >
             Edit Profile
           </button>
