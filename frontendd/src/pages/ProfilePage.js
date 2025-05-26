@@ -3,13 +3,17 @@ import { AuthContext } from '../components/auth/AuthContext';
 import UpdateProfileForm from '../components/public/UpdateProfileForm';
 import './ProfilePage.css';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const ProfilePage = () => {
-  const { user } = useContext(AuthContext);
+  const { user, setupMfa, verifyMfaSetup } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
+  const [showMfaSetup, setShowMfaSetup] = useState(false);
+  const [setupCode, setSetupCode] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -19,7 +23,8 @@ const ProfilePage = () => {
           email: user.email || '',
           role: user.role || 'standard_user',
           age: user.age || '',
-          isActive: user.isActive
+          isActive: user.isActive,
+          mfaEnabled: user.mfaEnabled || false
         });
       } catch (err) {
         setError('Failed to load user data');
@@ -37,6 +42,37 @@ const ProfilePage = () => {
   const handleUpdateSuccess = (updatedData) => {
     setUserData(updatedData);
     setIsEditing(false);
+  };
+
+  const handleSetupMfa = async () => {
+    setLoading(true);
+    try {
+      const response = await setupMfa();
+      setShowMfaSetup(true);
+      toast.info('Please check your email for the MFA setup code');
+    } catch (error) {
+      toast.error(error.message || 'Failed to setup MFA');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyMfa = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await verifyMfaSetup(setupCode);
+      toast.success('MFA setup successful!');
+      setShowMfaSetup(false);
+      setUserData(prev => ({
+        ...prev,
+        mfaEnabled: true
+      }));
+    } catch (error) {
+      toast.error(error.message || 'Failed to verify MFA setup');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (error) {
@@ -81,12 +117,59 @@ const ProfilePage = () => {
             <label>Status:</label>
             <span>{userData.isActive ? 'Active' : 'Inactive'}</span>
           </div>
-          <button 
-            className="edit-button"
-            onClick={handleEditClick}
-          >
-            Edit Profile
-          </button>
+          <div className="profile-field">
+            <label>Two-Factor Authentication:</label>
+            <span>{userData.mfaEnabled ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          
+          <div className="profile-actions">
+            <button 
+              className="edit-button"
+              onClick={handleEditClick}
+            >
+              Edit Profile
+            </button>
+            
+            {!userData.mfaEnabled && !showMfaSetup && (
+              <button 
+                className="mfa-button"
+                onClick={handleSetupMfa}
+                disabled={loading}
+              >
+                {loading ? 'Setting up...' : 'Enable Two-Factor Authentication'}
+              </button>
+            )}
+          </div>
+
+          {showMfaSetup && (
+            <div className="mfa-setup-section">
+              <h3>Set Up Two-Factor Authentication</h3>
+              <p className="mfa-instruction">
+                Please enter the verification code sent to your email to complete the setup.
+              </p>
+              <form onSubmit={handleVerifyMfa}>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    value={setupCode}
+                    onChange={(e) => setSetupCode(e.target.value.toUpperCase())}
+                    placeholder="Enter verification code"
+                    maxLength="6"
+                    required
+                    disabled={loading}
+                    className="form-control"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="verify-button"
+                  disabled={loading || !setupCode}
+                >
+                  {loading ? 'Verifying...' : 'Verify and Enable'}
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       ) : (
         <UpdateProfileForm
