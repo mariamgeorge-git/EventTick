@@ -106,6 +106,9 @@ userSchema.methods.toJSON = function () {
 };
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
+  if (!this.password) {
+    throw new Error('Password field not selected');
+  }
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
