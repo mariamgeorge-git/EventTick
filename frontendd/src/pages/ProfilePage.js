@@ -13,6 +13,11 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
 
+  // MFA state
+  const [showMfaSetup, setShowMfaSetup] = useState(false);
+  const [setupCode, setSetupCode] = useState('');
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (user) {
       try {
@@ -21,7 +26,8 @@ const ProfilePage = () => {
           email: user.email || '',
           role: user.role || 'standard_user',
           age: user.age || '',
-          isActive: user.isActive
+          isActive: user.isActive,
+          mfaEnabled: user.mfaEnabled // add this if present in user object
         });
       } catch (err) {
         setError('Failed to load user data');
@@ -35,6 +41,36 @@ const ProfilePage = () => {
   const handleUpdateSuccess = (updatedData) => {
     setUserData(updatedData);
     setIsEditing(false);
+  };
+
+  // MFA handlers
+  const handleSetupMfa = async () => {
+    setLoading(true);
+    try {
+      await setupMfa();
+      setShowMfaSetup(true);
+      toast.info('Please check your email for the MFA setup code');
+    } catch (error) {
+      toast.error(error.message || 'Failed to setup MFA');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyMfa = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await verifyMfaSetup(setupCode);
+      toast.success('MFA setup successful!');
+      setShowMfaSetup(false);
+      // Optionally update userData to reflect MFA enabled
+      setUserData((prev) => ({ ...prev, mfaEnabled: true }));
+    } catch (error) {
+      toast.error(error.message || 'Failed to verify MFA setup');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (error) {
@@ -81,6 +117,42 @@ const ProfilePage = () => {
             <label>Status:</label>
             <span>{userData.isActive ? 'Active' : 'Inactive'}</span>
           </div>
+          {/* MFA Section */}
+          <div className="profile-field">
+            <label>Two-Factor Authentication:</label>
+            <span>{userData.mfaEnabled ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          {!userData.mfaEnabled && !showMfaSetup && (
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={handleSetupMfa}
+              disabled={loading}
+              sx={{ mt: 2, mb: 2 }}
+            >
+              {loading ? 'Setting up...' : 'Enable Two-Factor Authentication'}
+            </Button>
+          )}
+          {showMfaSetup && (
+            <form onSubmit={handleVerifyMfa} style={{ marginTop: 8 }}>
+              <TextField
+                value={setupCode}
+                onChange={e => setSetupCode(e.target.value.toUpperCase())}
+                label="Verification Code"
+                required
+                size="small"
+                sx={{ mr: 2 }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={loading || !setupCode}
+              >
+                {loading ? 'Verifying...' : 'Verify and Enable'}
+              </Button>
+            </form>
+          )}
           <button 
             className="edit-button"
             onClick={() => setIsEditing(true)}
@@ -99,4 +171,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage; 
+export default ProfilePage;

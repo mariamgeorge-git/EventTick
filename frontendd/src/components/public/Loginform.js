@@ -5,47 +5,103 @@ import { toast } from 'react-toastify';
 import './AuthForms.css'; // Import the new CSS file
 
 const Loginform = () => {  // keep the component name matching filename casing
-  const { login } = useContext(AuthContext);
+  const { login, verifyMfa } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [mfaCode, setMfaCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showMfaInput, setShowMfaInput] = useState(false);
+  const [tempToken, setTempToken] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      console.log('Submitting login form...'); // Debug log
+      console.log('Submitting login form...');
       const res = await login(email, password);
-      console.log('Login response received:', res); // Debug log
+      console.log('Login response:', res);
       
-      if (res.data.user) {
+      if (res.mfaRequired) {
+        console.log('MFA required, showing MFA input...');
+        setShowMfaInput(true);
+        setTempToken(res.tempToken);
+        toast.info('Please enter the verification code sent to your email');
+      } else if (res.success) {
+        console.log('Login successful, redirecting...');
         toast.success('Login successful!');
-        navigate('/dashboard'); // Redirect to dashboard after login
-      } else {
-        toast.error('Login failed: No user data received');
+        navigate('/dashboard');
       }
     } catch (error) {
-      console.error('Login error details:', error); // Debug log
-      
-      // Handle different types of errors
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        const errorMessage = error.response.data?.message || 'Server error occurred';
-        toast.error(errorMessage);
-      } else if (error.request) {
-        // The request was made but no response was received
-        toast.error('No response from server. Please check your connection.');
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        toast.error(error.message || 'An unexpected error occurred');
-      }
+      console.error('Login error:', error);
+      toast.error(error.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleMfaSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      console.log('Submitting MFA verification...');
+      const res = await verifyMfa(mfaCode);
+      console.log('MFA verification response:', res);
+      
+      if (res.success) {
+        console.log('MFA verification successful, redirecting...');
+        toast.success('MFA verification successful!');
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('MFA verification error:', error);
+      toast.error(error.message || 'MFA verification failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (showMfaInput) {
+    return (
+      <div className="auth-container">
+        <div className="auth-content-wrapper">
+          <form onSubmit={handleMfaSubmit} className="auth-form">
+            <h2 className="auth-title">Two-Factor Authentication</h2>
+            <p className="mfa-instruction">
+              For added security, please enter the verification code sent to your email address.
+            </p>
+            
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Enter verification code"
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value.toUpperCase())}
+                maxLength="6"
+                required
+                disabled={loading}
+                className="form-control"
+                autoFocus
+              />
+            </div>
+            
+            <button
+              type="submit"
+              disabled={loading || !mfaCode}
+              className="auth-button"
+            >
+              {loading ? 'Verifying...' : 'Verify Code'}
+            </button>
+
+            <p className="mfa-help-text">
+              Didn't receive the code? Check your spam folder or contact support.
+            </p>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container">
@@ -60,6 +116,7 @@ const Loginform = () => {  // keep the component name matching filename casing
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
+              autoFocus
             />
           </div>
           <div className="form-group">
