@@ -84,9 +84,9 @@ const ContactSupportPage = () => {
                   Address
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  123 Event Street
+                  123 Boston Street
                   <br />
-                  City, Country
+                  Boston, USA
                 </Typography>
               </Box>
             </Box>
