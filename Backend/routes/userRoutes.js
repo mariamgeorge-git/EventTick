@@ -81,7 +81,15 @@ router.get('/events', authenticateToken, authorizeEventOrganizer, userController
 router.get('/events/analytics', authenticateToken, authorizeEventOrganizer, userController.getUserEventsAnalytics);
 
 // Admin routes
-router.get('/users', authenticateToken, authorizeAdmin, userController.getAllUsers);
+router.get('/users', authenticateToken, authorizeAdmin, (req, res, next) => {
+  console.log('GET /users request received:', {
+    headers: req.headers,
+    user: req.user,
+    isAuthenticated: !!req.user
+  });
+  next();
+}, userController.getAllUsers);
+
 router.get('/:id', authenticateToken, authorizeAdmin, userController.getUser);
 router.put('/:id', authenticateToken, authorizeAdmin, userController.updateUser);
 router.delete('/users/:id', authenticateToken, authorizeAdmin, userController.deleteUser);
