@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -17,6 +18,12 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const theme = useTheme();
+
+  const quickLinks = [
+    { to: '/', label: 'Home' },
+    { to: '/about', label: 'About Us' },
+    { to: '/contact', label: 'Contact' },
+  ];
 
   return (
     <Box
@@ -64,21 +71,21 @@ const Footer = () => {
             <Typography variant="h6" gutterBottom>
               Quick Links
             </Typography>
-            {[
-              { href: '/', label: 'Home' },
-              { href: '/events', label: 'Events' },
-              { href: '/about', label: 'About Us' },
-              { href: '/contact', label: 'Contact' },
-            ].map(({ href, label }) => (
+            {quickLinks.map(({ to, label }) => (
               <Link
-                key={href}
-                href={href}
+                key={to}
+                component={RouterLink}
+                to={to}
                 color="inherit"
-                display="block"
                 sx={{
+                  display: 'block',
                   mb: 1.5,
                   color: 'rgba(255,255,255,0.8)',
-                  '&:hover': { color: '#ffcc00', textDecoration: 'underline' },
+                  textDecoration: 'none',
+                  '&:hover': {
+                    color: '#ffcc00',
+                    textDecoration: 'underline',
+                  },
                 }}
               >
                 {label}

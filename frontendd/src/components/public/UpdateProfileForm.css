@@ -6,6 +6,36 @@
   border-radius: 8px;
 }
 
+.profile-image-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image-section .MuiAvatar-root {
+  border: 3px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.profile-image-section .MuiAvatar-root:hover {
+  transform: scale(1.05);
+}
+
+.profile-image-section .MuiIconButton-root {
+  background-color: #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.profile-image-section .MuiIconButton-root:hover {
+  background-color: #e0e0e0;
+}
+
 .form-group {
   margin-bottom: 1.5rem;
 }

@@ -11,7 +11,6 @@ import {
   Menu,
   MenuItem,
   Avatar,
-  Badge,
   Drawer,
   List,
   ListItem,
@@ -23,15 +22,15 @@ import {
 } from '@mui/material';
 import {
   Menu as MenuIcon,
-  Notifications as NotificationsIcon,
   Dashboard,
   Event,
   Logout,
   Person,
+  People,
+  EventNote,
 } from '@mui/icons-material';
-import { styled, alpha } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { AuthContext } from '../auth/AuthContext';
-import { useNotifications } from '../auth/NotificationContext';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: '#fff', // White background
@@ -69,20 +68,15 @@ const NavButton = styled(Button)(({ theme }) => ({
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleProfileMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
-
-  const handleNotificationMenuOpen = (event) => setNotificationAnchorEl(event.currentTarget);
-  const handleNotificationMenuClose = () => setNotificationAnchorEl(null);
 
   const handleMobileToggle = () => setMobileOpen(!mobileOpen);
 
@@ -94,8 +88,11 @@ const Navbar = () => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard', roles: ['standard_user', 'event_organizer', 'admin'] },
-    { text: 'My Events', icon: <Event />, path: '/my-events', roles: ['event_organizer'] },
+    { text: 'My Bookings', icon: <Event />, path: '/bookings', roles: ['standard_user'] },
+    { text: 'My Events', icon: <EventNote />, path: '/my-events', roles: ['event_organizer'] },
     { text: 'Profile', icon: <Person />, path: '/profile', roles: ['standard_user', 'event_organizer', 'admin'] },
+    { text: 'Management', icon: <People />, path: '/admin/users', roles: ['admin'] },
+    { text: 'Manage Events', icon: <EventNote />, path: '/admin/events', roles: ['admin'] },
   ];
 
   const filteredMenuItems = menuItems.filter((item) => item.roles.includes(user?.role));
@@ -166,9 +163,6 @@ const Navbar = () => {
               <NavButton component={RouterLink} to="/">
                 Home
               </NavButton>
-              <NavButton component={RouterLink} to="/events">
-                Events
-              </NavButton>
               <NavButton component={RouterLink} to="/contact">
                 Contact & Support
               </NavButton>
@@ -181,15 +175,6 @@ const Navbar = () => {
 
               {user ? (
                 <>
-                  <IconButton
-                    color="inherit"
-                    onClick={handleNotificationMenuOpen}
-                    sx={{ ml: 1 }}
-                  >
-                    <Badge badgeContent={unreadCount} color="error">
-                      <NotificationsIcon />
-                    </Badge>
-                  </IconButton>
                   <IconButton
                     onClick={handleProfileMenuOpen}
                     size="small"

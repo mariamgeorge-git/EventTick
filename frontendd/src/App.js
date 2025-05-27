@@ -23,6 +23,8 @@ import OrganizerEventAnalytics from './components/organizer/OrganizerEventAnalyt
 import AdminEventsPage from './pages/AdminEventsPage';
 import RoleBasedRoute from './components/auth/RoleBasedRoute';
 import UserBookingsPage from './pages/UserBookingsPage';
+import ContactSupportPage from './pages/ContactSupportPage';
+import AboutPage from './pages/AboutPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -45,18 +47,26 @@ function App() {
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/" element={<Events />} />
+                  <Route path="/about" element={<AboutPage />} />
                   <Route path="/forget-password" element={<ForgetPasswordPage />} />
                   <Route path="/reset-password" element={<Resetpasswordpage />} />
                   <Route path="/unauthorized" element={<UnauthorizedPage />} />
+                  <Route path="/events/:id" element={<EventDetailsPage />} />
+                  <Route path="/contact" element={<ContactSupportPage />} />
+
+                  {/* Protected Routes */}
                   <Route
                     path="/dashboard"
-                    element={<RoleBasedRoute element={<ProfilePage />} requiredRoles={['standard_user', 'user', 'event_organizer', 'admin']} />}
+                    element={<RoleBasedRoute element={<ProfilePage />} requiredRoles={['standard_user', 'event_organizer', 'admin']} />}
                   />
                   <Route
                     path="/profile"
-                    element={<RoleBasedRoute element={<ProfilePage />} requiredRoles={['standard_user', 'user', 'event_organizer', 'admin']} />}
+                    element={<RoleBasedRoute element={<ProfilePage />} requiredRoles={['standard_user', 'event_organizer', 'admin']} />}
                   />
-                  <Route path="/events/:id" element={<EventDetailsPage />} />
+                  <Route
+                    path="/bookings"
+                    element={<RoleBasedRoute element={<UserBookingsPage />} requiredRoles={['standard_user']} />}
+                  />
                   <Route
                     path="/create-event"
                     element={<RoleBasedRoute element={<CreateEventPage />} requiredRoles={['event_organizer']} />}
@@ -80,10 +90,6 @@ function App() {
                   <Route
                     path="/admin/events"
                     element={<RoleBasedRoute element={<AdminEventsPage />} requiredRoles={['admin']} />}
-                  />
-                  <Route
-                    path="/bookings"
-                    element={<RoleBasedRoute element={<UserBookingsPage />} requiredRoles={['standard_user']} />}
                   />
                   {/* Uncomment and adjust these if you have MFA/ProtectedRoute components */}
                   {/*

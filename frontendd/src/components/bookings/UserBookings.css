@@ -137,4 +137,43 @@
 
 .close-button:hover {
   color: #bdbdbd;
+}
+
+.no-bookings-message {
+  text-align: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.no-bookings-message h2 {
+  color: #333;
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+}
+
+.no-bookings-message p {
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.browse-events-button {
+  display: inline-block;
+  background-color: #89CFF0;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.browse-events-button:hover {
+  background-color: #64B5F6;
+  text-decoration: none;
+  color: white;
 } 

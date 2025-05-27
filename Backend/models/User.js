@@ -69,6 +69,10 @@ const userSchema = new mongoose.Schema({
     code: String,
     expiresAt: Date
   },
+  profileImage: {
+    type: String,
+    default: ''
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -88,11 +92,28 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ mfaCode: 1, mfaCodeExpires: 1 });
 
 userSchema.pre("save", async function (next) {
-  if (this.isModified('password')) {
-    this.password = await bcrypt.hash(this.password, 10);
+  try {
+    if (this.isModified('password')) {
+      console.log('Hashing password for user:', {
+        id: this._id,
+        email: this.email,
+        role: this.role,
+        passwordLength: this.password?.length
+      });
+      
+      this.password = await bcrypt.hash(this.password, 10);
+      
+      console.log('Password hashed successfully:', {
+        id: this._id,
+        hashedLength: this.password?.length
+      });
+    }
+    this.updatedAt = Date.now();
+    next();
+  } catch (error) {
+    console.error('Error in password hashing:', error);
+    next(error);
   }
-  this.updatedAt = Date.now();
-  next();
 });
 
 userSchema.methods.toJSON = function () {
@@ -106,10 +127,32 @@ userSchema.methods.toJSON = function () {
 };
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
-  if (!this.password) {
-    throw new Error('Password field not selected');
+  try {
+    if (!this.password) {
+      console.error('Password field not selected or missing');
+      throw new Error('Password field not selected');
+    }
+    
+    console.log('Password comparison details:', {
+      enteredPasswordLength: enteredPassword?.length,
+      hashedPasswordLength: this.password?.length,
+      enteredPasswordFirstChar: enteredPassword?.charAt(0),
+      hashedPasswordFirstChar: this.password?.charAt(0)
+    });
+    
+    const isMatch = await bcrypt.compare(enteredPassword, this.password);
+    console.log('Password comparison result:', {
+      isMatch,
+      bcryptVersion: bcrypt.version
+    });
+    return isMatch;
+  } catch (error) {
+    console.error('Error in comparePassword:', {
+      error: error.message,
+      stack: error.stack
+    });
+    throw error;
   }
-  return await bcrypt.compare(enteredPassword, this.password);
 };
 
 // Add method to validate MFA code

@@ -8,8 +8,52 @@ const secretKey = process.env.JWT_SECRET;
 console.log('JWT_SECRET loaded:', !!process.env.JWT_SECRET);
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { generateVerificationCode } = require('../utils/codeGenerator');
 
 const userController = {
+  createAdminUser: async (req, res) => {
+    try {
+      const { name, email, password, age } = req.body;
+
+      if (!name || !email || !password || !age) {
+        return res.status(400).json({ message: 'Name, email, password, and age are required' });
+      }
+
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(409).json({ message: 'User already exists' });
+      }
+
+      // Create new admin user with explicit role
+      const newUser = new User({
+        name,
+        email,
+        password,
+        role: 'admin',
+        age,
+        isActive: true
+      });
+
+      // Log the password before saving
+      console.log('Creating admin user with password length:', password.length);
+
+      const savedUser = await newUser.save();
+      console.log("Admin user created successfully:", {
+        id: savedUser._id,
+        email: savedUser.email,
+        role: savedUser.role
+      });
+
+      res.status(201).json({ 
+        message: 'Admin user created successfully',
+        userId: savedUser._id
+      });
+    } catch (error) {
+      console.error('Error creating admin user:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
+
   register: async (req, res) => {
     try {
       const { name, email, password, role, age } = req.body;
@@ -31,10 +75,11 @@ const userController = {
         return res.status(400).json({ message: 'Invalid role specified' });
       }
 
+      // Create new user - password will be hashed by the pre-save hook
       const newUser = new User({
         name,
         email,
-        password,
+        password, // No manual hashing here
         role: role || 'standard_user',
         age,
         isActive: true
@@ -50,7 +95,7 @@ const userController = {
         res.status(201).json({ message: 'User registered successfully' });
       } catch (error) {
         console.error("Error saving user:", error);
-        throw error;  // Propagate the error to the outer catch block
+        throw error;
       }
     } catch (error) {
       console.error('Error registering user:', {
@@ -195,8 +240,10 @@ const userController = {
         found: !!user,
         id: user?._id,
         email: user?.email,
+        role: user?.role,
         isActive: user?.isActive,
-        hasPassword: !!user?.password
+        hasPassword: !!user?.password,
+        passwordLength: user?.password?.length
       });
 
       if (!user) {
@@ -213,14 +260,28 @@ const userController = {
       }
 
       try {
-        const passwordMatch = await user.comparePassword(password);
-        console.log('Password match result:', passwordMatch);
+        console.log('Attempting password comparison for user:', {
+          email: user.email,
+          role: user.role,
+          providedPasswordLength: password?.length,
+          storedPasswordLength: user.password?.length
+        });
+        
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        console.log('Password comparison details:', {
+          isMatch: passwordMatch,
+          bcryptVersion: bcrypt.version,
+          userRole: user.role
+        });
         
         if (!passwordMatch) {
           return res.status(401).json({ message: 'Incorrect password' });
         }
       } catch (error) {
-        console.error('Error comparing passwords:', error);
+        console.error('Error comparing passwords:', {
+          error: error.message,
+          stack: error.stack
+        });
         return res.status(500).json({ message: 'Error verifying password' });
       }
 
@@ -483,10 +544,24 @@ const userController = {
         });
       }
 
-      const user = await User.findOne({ email });
+      console.log('Password reset attempt:', {
+        email,
+        codeProvided: !!verificationCode,
+        newPasswordLength: newPassword?.length
+      });
+
+      const user = await User.findOne({ email }).select('+password +verificationCode');
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
+
+      console.log('User found for password reset:', {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        hasVerificationCode: !!user.verificationCode,
+        verificationCodeExpiry: user.verificationCode?.expiresAt
+      });
 
       if (!user.verificationCode || !user.verificationCode.code) {
         return res.status(400).json({ 
@@ -504,12 +579,27 @@ const userController = {
         });
       }
 
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      user.password = hashedPassword;
+      // Let the pre-save middleware handle the password hashing
+      user.password = newPassword;
       user.verificationCode = undefined;
+      
+      console.log('Saving user with new password:', {
+        userId: user._id,
+        passwordLength: user.password?.length
+      });
+
       await user.save();
 
-      return res.status(200).json({ message: 'Password updated successfully' });
+      console.log('Password reset successful for user:', {
+        id: user._id,
+        email: user.email,
+        role: user.role
+      });
+
+      return res.status(200).json({ 
+        message: 'Password updated successfully',
+        email: user.email // Return email to help with login
+      });
     } catch (error) {
       console.error('Error in verify and reset password:', error);
       return res.status(500).json({ message: 'Server error' });
@@ -540,20 +630,33 @@ const userController = {
   updateUser: async (req, res) => {
     try {
       const updates = { ...req.body };
-      const userId = req.params.id || req.user._id;  // Get ID from URL params or authenticated user
+      const userId = req.params.id || req.user._id;
+
+      // Log update attempt
+      console.log('Profile update attempt:', {
+        userId,
+        hasFile: !!req.file,
+        updates: { ...updates, password: undefined }
+      });
 
       if (updates.age && (updates.age < 18 || updates.age > 100)) {
         return res.status(400).json({ message: 'Age must be between 18 and 100' });
       }
-  
+
       if (updates.role && !['admin', 'standard_user', 'event_organizer'].includes(updates.role)) {
         return res.status(400).json({ message: 'Invalid role specified' });
       }
-  
+
+      // Handle profile image
+      if (req.file) {
+        // Store the file path or URL in the database
+        updates.profileImage = `/uploads/${req.file.filename}`;
+      }
+
       if (updates.password) {
         updates.password = await bcrypt.hash(updates.password, 10);
       }
-  
+
       const user = await User.findByIdAndUpdate(
         userId,
         updates,
@@ -563,13 +666,21 @@ const userController = {
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-  
-      return res.status(200).json({ user, msg: 'User updated successfully' });
+
+      res.json({
+        message: 'Profile updated successfully',
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          age: user.age,
+          profileImage: user.profileImage
+        }
+      });
     } catch (error) {
-      if (error.name === 'ValidationError') {
-        return res.status(400).json({ message: error.message });
-      }
-      return res.status(500).json({ message: error.message });
+      console.error('Profile update error:', error);
+      res.status(500).json({ message: 'Error updating profile' });
     }
   },
 
@@ -642,6 +753,40 @@ const userController = {
       return res.status(200).json(analytics);
     } catch (error) {
       return res.status(500).json({ message: error.message });
+    }
+  },
+
+  updateUserRole: async (req, res) => {
+    try {
+      const { role } = req.body;
+      const userId = req.params.id;
+
+      if (!role || !['admin', 'standard_user', 'event_organizer'].includes(role)) {
+        return res.status(400).json({ message: 'Invalid role specified' });
+      }
+
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { role },
+        { new: true, runValidators: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      return res.status(200).json({
+        message: 'User role updated successfully',
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      });
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      return res.status(500).json({ message: 'Server error' });
     }
   }
 };
