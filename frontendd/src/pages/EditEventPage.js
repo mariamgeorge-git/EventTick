@@ -64,7 +64,7 @@ const EditEventPage = () => {
   return (
     <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
       <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Edit Event</h1>
-      <EventForm initialData={event} onSubmit={handleSubmit} />
+      <EventForm initialData={event} onSubmit={handleSubmit} isEdit={true} />
     </div>
   );
 };

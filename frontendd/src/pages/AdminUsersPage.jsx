@@ -53,53 +53,20 @@ const AdminUsersPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem('token');
-      console.log('Attempting to fetch users');
-      console.log('Token available:', !!token);
-      
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await axios.get('http://localhost:3001/api/v1/users/users', {
+      const response = await axios.get('http://localhost:3001/api/v1/users', {
+        withCredentials: true,
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-
-      if (!response.data) {
-        throw new Error('No data received from server');
-      }
-
-      console.log('Users fetch successful:', response.data);
       setUsers(response.data);
+      // Initial filter applied in the useEffect above
+      // setFilteredUsers(response.data);
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching users:', {
-        name: err.name,
-        message: err.message,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        responseData: err.response?.data,
-        stack: err.stack
-      });
-
-      let errorMessage = 'Failed to fetch users';
-      if (err.response) {
-        // Server responded with an error
-        errorMessage = err.response.data?.message || `Server error: ${err.response.status}`;
-      } else if (err.request) {
-        // Request was made but no response
-        errorMessage = 'No response from server. Please check your connection.';
-      } else {
-        // Error in request setup
-        errorMessage = err.message;
-      }
-
-      setError(errorMessage);
+      setError(err.response?.data?.message || 'Failed to fetch users');
       setLoading(false);
-      toast.error(errorMessage);
+      console.error('Error fetching users:', err);
     }
   };
 

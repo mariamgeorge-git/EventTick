@@ -2,12 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../auth/AuthContext';
 import { toast } from 'react-toastify';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Button, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const OrganizerEventAnalytics = () => {
   const { fetchMyEventAnalytics } = useContext(AuthContext);
   const [analyticsData, setAnalyticsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadAnalyticsData = async () => {
@@ -41,7 +44,18 @@ const OrganizerEventAnalytics = () => {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Event Analytics</h1>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => navigate('/my-events')}
+          sx={{ mb: 2 }}
+        >
+          Back to My Events
+        </Button>
+        <h1 style={{ margin: 0 }}>Event Analytics</h1>
+        <div style={{ width: '100px' }}></div> {/* Spacer for alignment */}
+      </Box>
       
       {/* Display Bar Chart for each event */}
       {analyticsData.map(eventAnalytics => {

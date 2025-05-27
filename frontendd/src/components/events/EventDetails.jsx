@@ -2,11 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
 import BookTicketForm from './BookTicketForm';
+import { Button, Box } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import './EventDetails.css';
 
 const EventDetails = () => {
   const { id } = useParams();
   const { fetchEventById, user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -88,6 +91,15 @@ const EventDetails = () => {
 
   return (
     <div className="event-details-container">
+      <Box display="flex" alignItems="center" mb={3}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{ mb: 2 }}
+        >
+          Back
+        </Button>
+      </Box>
       <div className="event-details-card">
         <h1 className="event-details-title">{event.title}</h1>
         
