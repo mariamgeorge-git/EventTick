@@ -8,7 +8,7 @@ const bookingController = {
   createBooking: async (req, res) => {
     try {
       const { eventId, numberOfTickets } = req.body;
-      const userId = req.user._id;
+      const userId = req.user.userId;
 
       
       if (!eventId || !numberOfTickets) {

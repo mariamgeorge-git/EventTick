@@ -630,7 +630,7 @@ const userController = {
   updateUser: async (req, res) => {
     try {
       const updates = { ...req.body };
-      const userId = req.params.id || req.user._id;
+      const userId = req.params.id || req.user.userId;
 
       // Log update attempt
       console.log('Profile update attempt:', {
@@ -675,6 +675,8 @@ const userController = {
           email: user.email,
           role: user.role,
           age: user.age,
+          isActive: user.isActive,
+          mfaEnabled: user.mfaEnabled,
           profileImage: user.profileImage
         }
       });
@@ -686,13 +688,26 @@ const userController = {
 
   deleteUser: async (req, res) => {
     try {
-      const user = await User.findByIdAndDelete(req.params.id);
+      const userIdToDelete = req.params.id; // Get the user ID from parameters
+      console.log('Attempting to delete user with ID:', userIdToDelete);
+
+      const user = await User.findByIdAndDelete(userIdToDelete);
+      
       if (!user) {
+        console.log('User not found for deletion with ID:', userIdToDelete);
         return res.status(404).json({ message: 'User not found' });
       }
+      
+      console.log('User deleted successfully:', userIdToDelete);
       return res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      console.error('Error deleting user:', error); // Log the full error on the backend
+      
+      // Send a more detailed error message to the frontend
+      return res.status(500).json({ 
+        message: 'Failed to delete user.', 
+        error: error.message // Include the specific backend error message
+      });
     }
   },
 
@@ -710,32 +725,40 @@ const userController = {
 
   getUserBookings: async (req, res) => {
     try {
-      const userId = req.user._id;
+      const userId = req.user.userId;
+      console.log('Attempting to fetch bookings for userId:', userId);
       const bookings = await Booking.find({ user: userId })
         .populate('event')
         .sort({ createdAt: -1 });
       
+      console.log(`Found ${bookings.length} bookings for userId: ${userId}`, bookings);
       return res.status(200).json(bookings);
     } catch (error) {
+      console.error('Error fetching user bookings:', error);
       return res.status(500).json({ message: error.message });
     }
   },
 
   getUserEvents: async (req, res) => {
     try {
-      const userId = req.user._id;
+      const userId = req.user.userId;
+      console.log('Fetching events for organizer userId:', userId);
       const events = await Event.find({ organizer: userId }).sort({ date: 1 });
+      console.log('Found events for organizer:', events.length);
       return res.status(200).json(events);
     } catch (error) {
+      console.error('Error fetching organizer events:', error);
       return res.status(500).json({ message: error.message });
     }
   },
 
   getUserEventsAnalytics: async (req, res) => {
     try {
-      const userId = req.user._id;
+      const userId = req.user.userId;
+      console.log('Fetching analytics for organizer userId:', userId);
       const events = await Event.find({ organizer: userId });
-      
+      console.log('Found events for analytics:', events.length);
+
       const analytics = await Promise.all(events.map(async (event) => {
         const bookings = await Booking.find({ event: event._id });
         const totalTicketsSold = bookings.reduce((sum, booking) => sum + booking.numberOfTickets, 0);

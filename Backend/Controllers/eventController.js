@@ -53,7 +53,7 @@ const eventController = {
         location,
         ticketsAvailable: parseInt(ticketsAvailable),
         Price: parseFloat(Price),
-        organizer: req.user._id,
+        organizer: req.user.userId,
         status: 'pending' 
       });
 

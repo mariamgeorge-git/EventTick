@@ -93,7 +93,7 @@ router.get('/', authenticateToken, authorizeAdmin, (req, res, next) => {
 // User management routes (Admin only)
 router.get('/:id', authenticateToken, authorizeAdmin, userController.getUser);
 router.put('/:id', authenticateToken, authorizeAdmin, userController.updateUser);
-router.delete('/users/:id', authenticateToken, authorizeAdmin, userController.deleteUser);
+router.delete('/:id', authenticateToken, authorizeAdmin, userController.deleteUser);
 router.put('/users/:id/role', authenticateToken, authorizeAdmin, userController.updateUserRole);
 
 module.exports = router;
