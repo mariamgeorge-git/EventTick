@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../components/auth/AuthContext';
+import { Avatar, Button, IconButton } from '@mui/material';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import './UpdateProfileForm.css'; // Import the CSS file
 
 const UpdateProfileForm = ({ initialData = {}, onUpdateSuccess, onCancel }) => {
@@ -9,7 +11,8 @@ const UpdateProfileForm = ({ initialData = {}, onUpdateSuccess, onCancel }) => {
     email: '',
     age: '',
   });
-
+  const [profileImage, setProfileImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,6 +25,9 @@ const UpdateProfileForm = ({ initialData = {}, onUpdateSuccess, onCancel }) => {
         email: initialData.email || '',
         age: initialData.age ? String(initialData.age) : '',
       });
+      if (initialData.profileImage) {
+        setPreviewUrl(initialData.profileImage);
+      }
     }
   }, [initialData]);
 
@@ -55,6 +61,22 @@ const UpdateProfileForm = ({ initialData = {}, onUpdateSuccess, onCancel }) => {
     if (submitError) setSubmitError('');
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setSubmitError('Image size should be less than 5MB');
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        setSubmitError('Please upload an image file');
+        return;
+      }
+      setProfileImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -62,12 +84,15 @@ const UpdateProfileForm = ({ initialData = {}, onUpdateSuccess, onCancel }) => {
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      // Pass cleaned and typed data to updateUser function
-      const updatedUser = await updateUser({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        age: Number(formData.age.trim()),
-      });
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name.trim());
+      formDataToSend.append('email', formData.email.trim());
+      formDataToSend.append('age', Number(formData.age.trim()));
+      if (profileImage) {
+        formDataToSend.append('profileImage', profileImage);
+      }
+
+      const updatedUser = await updateUser(formDataToSend);
       onUpdateSuccess(updatedUser);
     } catch (error) {
       setSubmitError(error.message || 'Failed to update profile. Please try again.');
@@ -78,6 +103,31 @@ const UpdateProfileForm = ({ initialData = {}, onUpdateSuccess, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="update-profile-form">
+      <div className="profile-image-section">
+        <Avatar
+          src={previewUrl || initialData.profileImage}
+          alt={formData.name}
+          sx={{ width: 100, height: 100, mb: 2 }}
+        />
+        <input
+          accept="image/*"
+          type="file"
+          id="profile-image-input"
+          onChange={handleImageChange}
+          style={{ display: 'none' }}
+        />
+        <label htmlFor="profile-image-input">
+          <IconButton
+            color="primary"
+            aria-label="upload picture"
+            component="span"
+            sx={{ mt: 1 }}
+          >
+            <PhotoCamera />
+          </IconButton>
+        </label>
+      </div>
+
       <div className="form-group">
         <label htmlFor="name">Name:</label>
         <input

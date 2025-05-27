@@ -5,21 +5,29 @@ import { AuthContext } from './AuthContext'; // Assuming AuthContext is in the s
 const RoleBasedRoute = ({ element, requiredRoles }) => {
   const { user, loading } = useContext(AuthContext);
 
-  // If still loading, you might want to render a loading indicator
+  // Show loading indicator while checking authentication
   if (loading) {
-    return <div>Loading...</div>; // Or a spinner component
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   // If user is not logged in, redirect to login page
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: window.location.pathname }} />;
   }
 
   // Check if user's role is in the requiredRoles array
   if (requiredRoles && requiredRoles.length > 0 && !requiredRoles.includes(user.role)) {
-    // If role is not authorized, redirect to a forbidden page or home
-    // You might want a specific 403 Forbidden page
-    return <Navigate to="/" replace />; // Redirect to home for now
+    // If role is not authorized, redirect to unauthorized page
+    return <Navigate to="/unauthorized" replace />;
   }
 
   // If authorized, render the element

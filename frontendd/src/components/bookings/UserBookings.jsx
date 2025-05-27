@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import './UserBookings.css';
 import BookingDetails from './BookingDetails';
+import { Link } from 'react-router-dom';
 
 const UserBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -91,7 +92,13 @@ const UserBookings = () => {
       {error && <div className="error-message">{error}</div>}
       
       {bookings.length === 0 ? (
-        <p>You haven't made any bookings yet.</p>
+        <div className="no-bookings-message">
+          <h2>No Bookings Found</h2>
+          <p>You haven't made any bookings yet. Start exploring our amazing events and book your tickets today!</p>
+          <Link to="/" className="browse-events-button">
+            Browse Events
+          </Link>
+        </div>
       ) : (
         <div className="bookings-list">
           {bookings.map((booking) => (
