@@ -21,20 +21,22 @@ const Loginform = () => {  // keep the component name matching filename casing
     try {
       console.log('Submitting login form...');
       const res = await login(email, password);
-      console.log('Login response:', res);
-      
-      if (res.mfaRequired) {
+      console.log('Login handler received response:', res);
+
+      if (res && res.success) {
+        console.log('Login successful, redirecting...');
+        navigate('/dashboard');
+      } else if (res && res.mfaRequired) {
         console.log('MFA required, showing MFA input...');
         setShowMfaInput(true);
         setTempToken(res.tempToken);
         toast.info('Please enter the verification code sent to your email');
-      } else if (res.success) {
-        console.log('Login successful, redirecting...');
-        toast.success('Login successful!');
-        navigate('/dashboard');
+      } else {
+        console.error('Login failed with unexpected response structure or no response.', res);
+        toast.error(res?.message || 'Login failed.');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login submission error:', error);
       toast.error(error.message || 'Login failed');
     } finally {
       setLoading(false);

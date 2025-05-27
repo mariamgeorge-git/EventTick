@@ -8,7 +8,7 @@ const bookingController = {
   createBooking: async (req, res) => {
     try {
       const { eventId, numberOfTickets } = req.body;
-      const userId = req.user._id;
+      const userId = req.user.userId;
 
       
       if (!eventId || !numberOfTickets) {
@@ -205,8 +205,8 @@ const bookingController = {
         });
       }
 
-      
-      if (booking.user.toString() !== req.user._id.toString()) {
+      // Ensure the user canceling the booking is the owner of the booking
+      if (!req.user || String(booking.user) !== String(req.user.userId)) {
         return res.status(403).json({ 
           success: false,
           message: "Not authorized to cancel this booking" 

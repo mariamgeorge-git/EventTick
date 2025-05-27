@@ -128,8 +128,12 @@ const AdminUsersPage = () => {
       setUsers(users.filter(user => user._id !== userToDeleteId));
       toast.success('User deleted successfully!');
     } catch (err) {
-      console.error('Error deleting user:', err);
-      toast.error(err.response?.data?.message || 'Failed to delete user.');
+      console.error('Error deleting user:', err); // Log full error object to console
+
+      // Attempt to get a more specific error message from the backend response
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to delete user.';
+      
+      toast.error(errorMessage);
     } finally {
       handleDeleteDialogClose();
     }

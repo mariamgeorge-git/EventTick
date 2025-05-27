@@ -19,11 +19,11 @@ const UpdateProfileForm = ({ initialData = {}, onUpdateSuccess, onCancel }) => {
 
   // Initialize form with initialData when component mounts or initialData changes
   useEffect(() => {
-    if (initialData) {
+    if (initialData && Object.keys(initialData).length > 0) {
       setFormData({
         name: initialData.name || '',
         email: initialData.email || '',
-        age: initialData.age ? String(initialData.age) : '',
+        age: (initialData.age !== undefined && initialData.age !== null) ? String(initialData.age) : '',
       });
       if (initialData.profileImage) {
         setPreviewUrl(initialData.profileImage);
