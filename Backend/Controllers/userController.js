@@ -236,6 +236,8 @@ const userController = {
       const user = await User.findOne({ email })
         .select('+password +mfaSecret +mfaCode +mfaCodeExpires');
 
+      console.log('User found in DB:', user); // Log the user object from the database
+
       console.log('User lookup result:', {
         found: !!user,
         id: user?._id,

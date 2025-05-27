@@ -1,5 +1,6 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import api from '../../services/api.js';
+import { toast } from 'react-hot-toast';
 
 export const AuthContext = createContext();
 
@@ -7,31 +8,40 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [mfaRequired, setMfaRequired] = useState(false);
   const [tempToken, setTempToken] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Load user from local storage on component mount
+  useEffect(() => {
+    loadUser();
+  }, []); // Empty dependency array means this effect runs only once on mount
 
   const login = async (email, password) => {
     try {
       console.log('Attempting login...');
-      const res = await api.post('/login', { email, password });
-      console.log('Login response:', res.data);
-      
-      // Check if MFA is required
-      if (res.data.mfaRequired && res.data.tempToken) {
-        console.log('MFA required, setting states...');
-        setMfaRequired(true);
-        setTempToken(res.data.tempToken);
-        return { mfaRequired: true, tempToken: res.data.tempToken };
-      }
+      const response = await api.post('/users/login', { email, password });
+      console.log('Login API response:', response.data); // Log the full response data
 
-      // Normal login success
-      if (res.data.user) {
-        console.log('Normal login success, setting user...');
-        setUser(res.data.user);
-        if (res.data.token) {
-          localStorage.setItem('token', res.data.token);
-        }
-        return { success: true, user: res.data.user };
+      if (response.data.token && response.data.user) {
+        // Normal login success (no MFA or MFA already verified)
+        localStorage.setItem('token', response.data.token);
+        setUser(response.data.user); // Set user only if provided
+        setIsAuthenticated(true);
+        setMfaRequired(false); // Ensure MFA is not marked as required in state
+        setTempToken(null); // Clear temp token
+        toast.success('Login successful!');
+        return { success: true, user: response.data.user }; // Indicate success and return user
+      } else if (response.data.mfaRequired) {
+        // MFA is required
+        console.log('MFA required based on login response.');
+        setMfaRequired(true); // Set MFA required state
+        setTempToken(response.data.tempToken); // Store the temporary token in context
+        // Do NOT set the main user state yet
+        // Do NOT set isAuthenticated to true yet
+        return { mfaRequired: true, tempToken: response.data.tempToken }; // Indicate MFA required
       } else {
-        throw new Error('No user data in response');
+        // Unexpected response structure
+        console.error('Login received unexpected data structure:', response.data);
+        throw new Error('Login failed: Unexpected server response.');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -355,6 +365,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loadUser = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      console.log('Attempting to load user with token...');
+      try {
+        const res = await api.get('/users/current-user');
+        console.log('loadUser successful. Received user data:', res.data); // Log received user object
+        // Ensure all user data from backend is set in context
+        setUser(res.data);
+        setIsAuthenticated(true);
+        console.log('User loaded successfully into context:', res.data); // Log loaded user data
+      } catch (error) {
+        console.error('Error loading user:', error);
+        localStorage.removeItem('token');
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -376,7 +406,8 @@ export const AuthProvider = ({ children }) => {
       updateUser,
       fetchMyEventAnalytics,
       fetchAllEventsAsAdmin,
-      updateEventStatus
+      updateEventStatus,
+      loadUser
     }}>
       {children}
     </AuthContext.Provider>

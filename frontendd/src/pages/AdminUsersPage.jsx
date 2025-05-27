@@ -117,7 +117,7 @@ const AdminUsersPage = () => {
     if (!userToDeleteId) return;
 
     try {
-      await axios.delete(`http://localhost:3001/api/v1/users/users/${userToDeleteId}`, {
+      await axios.delete(`http://localhost:3001/api/v1/users/${userToDeleteId}`, {
         withCredentials: true,
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

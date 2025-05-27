@@ -80,10 +80,10 @@ const eventController = {
       
       const isAdmin = req.user.role === 'admin';
       const isEventOrganizer = req.user.role === 'event_organizer';
-      const isEventOwner = String(event.organizer) === String(req.user._id);
+      const isEventOwner = isEventOrganizer && String(event.organizer) === String(req.user.userId);
 
       
-      if (!isAdmin && !(isEventOrganizer && isEventOwner)) {
+      if (!isAdmin && !isEventOwner) {
         return res.status(403).json({ message: 'Not authorized to update this event' });
       }
 
