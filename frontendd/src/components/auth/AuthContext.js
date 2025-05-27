@@ -114,7 +114,16 @@ export const AuthProvider = ({ children }) => {
       console.log('Making request to:', '/users/setup-mfa');
       console.log('Current user:', user);
       
-      const res = await api.post('/users/setup-mfa');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication token not found. Please log in.');
+      }
+
+      const res = await api.post('/users/setup-mfa', {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('MFA setup response:', res.data);
       
       if (!res.data) {

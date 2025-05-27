@@ -81,7 +81,7 @@ router.get('/events', authenticateToken, authorizeEventOrganizer, userController
 router.get('/events/analytics', authenticateToken, authorizeEventOrganizer, userController.getUserEventsAnalytics);
 
 // Admin routes
-router.get('/users', authenticateToken, authorizeAdmin, (req, res, next) => {
+router.get('/', authenticateToken, authorizeAdmin, (req, res, next) => {
   console.log('GET /users request received:', {
     headers: req.headers,
     user: req.user,
@@ -90,6 +90,7 @@ router.get('/users', authenticateToken, authorizeAdmin, (req, res, next) => {
   next();
 }, userController.getAllUsers);
 
+// User management routes (Admin only)
 router.get('/:id', authenticateToken, authorizeAdmin, userController.getUser);
 router.put('/:id', authenticateToken, authorizeAdmin, userController.updateUser);
 router.delete('/users/:id', authenticateToken, authorizeAdmin, userController.deleteUser);

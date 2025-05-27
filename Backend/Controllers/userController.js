@@ -112,7 +112,7 @@ const userController = {
 
   setupMfa: async (req, res) => {
     try {
-      const userId = req.user._id;
+      const userId = req.user.userId;
       const user = await User.findById(userId).select('+mfaSecret +mfaCode +mfaCodeExpires');
 
       if (!user) {
@@ -167,7 +167,7 @@ const userController = {
   verifyMfaSetup: async (req, res) => {
     try {
       const { setupCode } = req.body;
-      const userId = req.user._id;
+      const userId = req.user.userId;
       const user = await User.findById(userId).select('+mfaSecret +mfaSetupCode +mfaSetupCodeExpires');
 
       if (!user) {

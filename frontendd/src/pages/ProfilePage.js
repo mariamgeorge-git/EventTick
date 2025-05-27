@@ -47,6 +47,10 @@ const { user, setupMfa, verifyMfaSetup } = useContext(AuthContext);
 
   // MFA handlers
   const handleSetupMfa = async () => {
+    if (!user || !user._id) {
+      toast.error('User information not available. Please try logging in again.');
+      return;
+    }
     setLoading(true);
     try {
       await setupMfa();
