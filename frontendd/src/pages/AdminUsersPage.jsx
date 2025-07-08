@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import api from '../services/api'; // Adjust the import path as necessary
+
 import {
   Table,
   TableBody,
@@ -80,17 +82,17 @@ const AdminUsersPage = () => {
     setUserToUpdate(null);
   };
 
-  const handleUpdateRoleConfirm = async (userId, newRole) => {
-    try {
-      const response = await axios.put(`http://localhost:3001/api/v1/users/${userId}`, 
-        { role: newRole.toLowerCase() },
-        {
-          withCredentials: true,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+   const handleUpdateRoleConfirm = async (userId, newRole) => {
+  try {
+    const response = await api.get('/events', {
+      params: {  // Send role as a query parameter
+        role: newRole.toLowerCase()
+      },
+      withCredentials: true,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
 
       // Update users state with the modified user
       setUsers(users.map(user => user._id === userId ? response.data.user : user));
@@ -117,7 +119,7 @@ const AdminUsersPage = () => {
     if (!userToDeleteId) return;
 
     try {
-      await axios.delete(`http://localhost:3001/api/v1/users/${userToDeleteId}`, {
+      await api.delete('/events', {
         withCredentials: true,
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

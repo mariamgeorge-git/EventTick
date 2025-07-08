@@ -4,6 +4,7 @@ import { AuthContext } from '../auth/AuthContext';
 import BookTicketForm from './BookTicketForm';
 import { Button, Box } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import api from '../../services/api'; // Adjust the import path as necessary
 import './EventDetails.css';
 
 const EventDetails = () => {

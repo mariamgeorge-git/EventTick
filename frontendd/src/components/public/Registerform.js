@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import api from '../../services/api'; // Adjust the import path as necessary
 import './AuthForms.css'; // Import the new CSS file
 
 const Registerform = () => {
@@ -30,9 +31,9 @@ const Registerform = () => {
       return;
     }
 
-    try {
+   try {
       // Adjust the URL to your backend registration endpoint
-      await axios.post('http://localhost:3001/api/v1/register', {
+      await api.post('/events', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
